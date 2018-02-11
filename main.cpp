@@ -2,7 +2,7 @@ class ThisIsAClass
 {
   public:
     void method() const;
-}
+};
 
 void ThisIsAClass::method() const
 {
