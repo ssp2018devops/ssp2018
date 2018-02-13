@@ -11,8 +11,8 @@ void ThisIsAClass::method() const
 
 int main()
 {
-  ThisIsAClass a;
-  a.method();
+  ThisIsAClass* a = new ThisIsAClass();
+  a->method();
   
   return 0;
 }
