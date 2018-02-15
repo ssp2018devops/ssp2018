@@ -75,8 +75,8 @@ World::World(Window& window)
 //    mFramebuffer.bindTextureToShaderUniform(2, "normal", mLightPassProgram);
 //    mFramebuffer.bindTextureToShaderUniform(3, "texCoord", mLightPassProgram);
 
-//    mDemos.push_back(std::unique_ptr<Demo>(new TerrainDemo(mWindow.getView())));
-    mDemos.push_back(std::unique_ptr<Demo>(new QuadtreeDemo(mWindow.getView())));
+    mDemos.push_back(std::unique_ptr<Demo>(new TerrainDemo(mWindow.getView())));
+//    mDemos.push_back(std::unique_ptr<Demo>(new QuadtreeDemo(mWindow.getView())));
 //    mDemos.push_back(std::unique_ptr<Demo>(new ParticleSystemDemo(mWindow.getView())));
 //    mDemos.push_back(std::unique_ptr<Demo>(new MousePickingDemo(mFramebuffer)));
 //
