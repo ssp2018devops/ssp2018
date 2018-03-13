@@ -2,3 +2,4 @@ extlib/*
 build/*
 CMakeCache.txt
 CMakeFiles/*
+*/CMakeFiles/*
