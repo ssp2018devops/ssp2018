@@ -1,2 +1,4 @@
-
+extlib/*
 build/*
+CMakeCache.txt
+CMakeFiles/*
