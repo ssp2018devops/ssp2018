@@ -1,3 +1,4 @@
+src/ext/sdl2/*
 extlib/*
 build/*
 CMakeCache.txt
