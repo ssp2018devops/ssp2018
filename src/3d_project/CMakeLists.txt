@@ -63,5 +63,5 @@ else()
 endif()
 
 target_compile_definitions(3d PRIVATE GLM_ENABLE_EXPERIMENTAL)
-target_link_libraries(3d SDL2main glm)#SDL2 SDL2main SDL2_image GL dl pthread)
+target_link_libraries(3d SDL2main glm glew)#SDL2 SDL2main SDL2_image GL dl pthread)
 

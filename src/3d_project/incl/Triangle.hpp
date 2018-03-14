@@ -12,8 +12,9 @@
 #ifndef TRIANGLE_HPP
 #define TRIANGLE_HPP
 
-#define GL_GLEXT_PROTOTYPES
-#include "GL/gl.h"
+#include "GL/glew.h"
+//#define GL_GLEXT_PROTOTYPES
+//#include "GL/gl.h"
 
 ////////////////////////////////////////////////
 // Simple DirectMedia Layer (SDL)

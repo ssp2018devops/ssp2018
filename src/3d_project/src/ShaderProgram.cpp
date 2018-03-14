@@ -16,7 +16,7 @@
 
 ////////////////////////////////////////////////
 // OpenGL
-#include "GL/glext.h"
+#include "GL/glew.h"
 ////////////////////////////////////////////////
 
 ////////////////////////////////////////////////
@@ -150,7 +150,8 @@ void ShaderProgram::loadProgram()
     std::string fragmentFile;
     getShaderProgramFilePaths(ID, vertexFile, geometryFile, fragmentFile);
 
-    std::cout << "Loading program: " << ShaderProgram::idToPathName.at(ID) << std::endl;
+    std::string pathName = ShaderProgram::idToPathName.at(ID);
+    std::cout << "Loading program: " << pathName.c_str() << std::endl;
 
     mShaderProgramId = glCreateProgram();
 

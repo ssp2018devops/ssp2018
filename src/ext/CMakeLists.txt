@@ -11,4 +11,5 @@ add_subdirectory(glm)
 
 # glew #########################
 add_subdirectory(glew/build/cmake)
+target_include_directories(glew PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/glew/include>)
 ################################
