@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.2)
 
-project (3d)
+project (3d CXX)
+include(CheckCXXCompilerFlag)
 
 # LIBS ###############################
 find_library(lib_sdl2 SDL2 "${LIB_SDL2}")
@@ -49,7 +50,18 @@ add_executable(3d main.cpp ${SRC})
 
 
 target_include_directories(3d PRIVATE "incl" "${INCL_SDL2}/.." "${INCL_SDL2_IMAGE}/.." "${INCL_GL}/.." "${INCL_GLM}/..")
-target_compile_options(3d PRIVATE -std=c++17)
 
-target_link_libraries(3d sdl2)#SDL2 SDL2main SDL2_image GL dl pthread)
+
+CHECK_CXX_COMPILER_FLAG(-std=c++17 HAS_FLAG_STD)
+if (HAS_FLAG_STD)
+  target_compile_options(3d PRIVATE -std=c++17)
+else()
+  CHECK_CXX_COMPILER_FLAG(/std=c++17 HAS_FLAG_STD)
+  if (HAS_FLAG_STD)
+    target_compile_options(3d PRIVATE /std=c++17)
+  endif()
+endif()
+
+target_compile_definitions(3d PRIVATE GLM_ENABLE_EXPERIMENTAL)
+target_link_libraries(3d SDL2main glm)#SDL2 SDL2main SDL2_image GL dl pthread)
 
