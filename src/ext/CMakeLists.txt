@@ -9,3 +9,6 @@ target_include_directories(SDL2main PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOU
 add_subdirectory(glm)
 ################################
 
+# glew #########################
+add_subdirectory(glew/build/cmake)
+################################
