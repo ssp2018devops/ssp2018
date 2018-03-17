@@ -24,7 +24,7 @@ ${SRC_DIR}/IMG_xxx.c)
 
 
 
-target_link_libraries(sdl2_image SDL2 png)
+target_link_libraries(sdl2_image SDL2 png jpeg)
 target_include_directories(sdl2_image PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${SRC_DIR}>)
 target_compile_definitions(sdl2_image PRIVATE LOAD_PNG LOAD_JPG)
 

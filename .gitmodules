@@ -16,3 +16,6 @@
 [submodule "src/ext/zlib"]
 	path = src/ext/zlib
 	url = https://github.com/commontk/zlib
+[submodule "src/ext/jpeg"]
+	path = src/ext/jpeg
+	url = https://github.com/LuaDist/libjpeg

@@ -27,7 +27,13 @@ set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zlib" "${CMAKE_CURRENT_BINARY_
 add_subdirectory(png)
 target_include_directories(png PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/png>)
 target_include_directories(png PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/png>)
-#target_include_directories(png-fix-itxt PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/zlib)
+################################
+
+# jpeg ##########################
+set(BUILD_STATIC ON CACHE BOOL "Build static jpeg" FORCE)
+add_subdirectory(jpeg)
+target_include_directories(jpeg PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/jpeg>)
+target_include_directories(jpeg PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/jpeg>)
 ################################
 
 # sdl2_image ###################
