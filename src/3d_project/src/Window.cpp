@@ -70,6 +70,12 @@ Window::Window(size_t width, size_t height)
         throw std::runtime_error(SDL_GetError());
     }
 
+	GLenum glewInitResult = glewInit();
+	if (glewInitResult != GLEW_OK)
+	{
+		throw std::runtime_error("Failed to initialize GLEW");
+	}
+
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 

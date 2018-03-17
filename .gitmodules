@@ -10,3 +10,6 @@
 [submodule "src/ext/sdl2_image/sdl2_image"]
 	path = src/ext/sdl2_image/sdl2_image
 	url = https://github.com/SDL-mirror/SDL_image
+[submodule "src/ext/png"]
+	path = src/ext/png
+	url = https://github.com/glennrp/libpng
