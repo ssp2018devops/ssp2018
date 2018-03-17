@@ -15,6 +15,21 @@ add_subdirectory(glew/build/cmake)
 target_include_directories(glew PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/glew/include>)
 ################################
 
+# zlib #########################
+add_subdirectory(zlib)
+target_include_directories(zlib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/zlib>)
+################################
+
+# png ##########################
+set(PNG_BUILD_ZLIB ON CACHE BOOL "Build zlib" FORCE)
+set(ZLIB_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/zlib/zlib.lib")
+set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/zlib" "${CMAKE_CURRENT_BINARY_DIR}/zlib")
+add_subdirectory(png)
+target_include_directories(png PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/png>)
+target_include_directories(png PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/png>)
+#target_include_directories(png-fix-itxt PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/zlib)
+################################
+
 # sdl2_image ###################
 add_subdirectory(sdl2_image)
 ################################

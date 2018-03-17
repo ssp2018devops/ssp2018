@@ -5,3 +5,4 @@ CMakeCache.txt
 CMakeFiles/*
 */CMakeFiles/*
 src/ext/glew/*
+build_vs/*
