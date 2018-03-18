@@ -66,3 +66,10 @@ endif()
 target_compile_definitions(3d PRIVATE GLM_ENABLE_EXPERIMENTAL)
 target_link_libraries(3d SDL2main glm glew sdl2_image)#SDL2 SDL2main SDL2_image GL dl pthread)
 
+add_custom_command(TARGET 3d POST_BUILD 
+                   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:glew> 
+                                                    $<TARGET_FILE:png> 
+                                                    $<TARGET_FILE:sdl2_image> 
+                                                    $<TARGET_FILE:SDL2> 
+                                                    $<TARGET_FILE:zlib> 
+                                                    ${CMAKE_CURRENT_BINARY_DIR})
