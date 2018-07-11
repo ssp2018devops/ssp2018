@@ -129,9 +129,11 @@ namespace ecs
 
 
             ///
-            /// Clear events list.
+            /// End current world tick.
+            /// Clears all events. Invalidates all 
+            /// pointers in events.
             ///
-            void clear_events();
+            void end_tick();
 
             ///
             /// Get entities destroyed since last clear_events.
@@ -143,14 +145,47 @@ namespace ecs
             const std::vector<ecs::Entity>& get_destroyed_entities() const;
 
             ///
-            /// Get components detached from entity since last clear_events.
-            /// The returned components are invalid pointers
-            /// and should only be used for pointer comparisons.
-            /// \param entity The entity detached from.
+            /// Get entities detached from component of type T
+            /// since last end_tick.
+            /// \tparam T Component type.
+            /// \return Detached entities.
+            ///
+            template<typename T>
+            const std::vector<ecs::Entity>& get_detached_entities() const;
+
+            ///
+            /// Get components detached since last end_tick.
+            /// \tparam T Component type.
             /// \return Detached components.
             ///
             template<typename T>
-            const std::vector<const void*>& get_detached_components(const Entity& entity) const;
+            const std::vector<const T*>& get_detached_components() const;
+
+
+            ///
+            /// Get entities attached to component of type T
+            /// since last end_tick.
+            /// \tparam T Component type.
+            /// \return Attached entities.
+            ///
+            template<typename T>
+            const std::vector<ecs::Entity>& get_attached_entities() const;
+
+            ///
+            /// Get components attached since last end_tick.
+            /// \tparam T Component type.
+            /// \return Attached components.
+            ///
+            template<typename T>
+            const std::vector<const T*>& get_attached_components() const;
+
+
+            ///
+            /// Detach all components of type T.
+            /// \tparam T Component type.
+            ///
+            template<typename T>
+            void detach_components();
 
 
         private:            

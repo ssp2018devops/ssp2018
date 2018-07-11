@@ -76,7 +76,7 @@ std::vector<Entity> World::from_ids(const std::vector<EntityId>& ids)
     return entities;
 }
 
-void World::clear_events()
+void World::end_tick()
 {
     // TODO: Implement this method.
 }

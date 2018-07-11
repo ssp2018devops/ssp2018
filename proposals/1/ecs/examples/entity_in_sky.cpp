@@ -131,55 +131,5 @@ int main()
         // Oh no...
     }
 
-    // We can also check the events.
-    for(const ecs::Entity& entity : world.get_destroyed_entities())
-    {
-        // Since the entity is destroyed we cannot
-        // do anything except do comparisons.
-        if(entity == entity_in_sky)
-        {
-            // RIP
-            break;
-        }
-    }
-
-    // We can also check components.
-    for(const void* health : world.get_detached_components<Health>(entity_in_sky))
-    {
-        // But note that the pointer is invalid.
-        // So we can't do this:
-        // unsigned short amount = ((Health*)health)->amount;
-
-        // Also note that our entity is destroyed.
-        // So we can't do this either:
-        // if(entity_in_sky.get<Health>() == health) { // ... }
-
-        ////////////////////////////////////////////////////////////
-        // What we could have done is stored our entity's health
-        // pointer before it was destroyed and check against that.
-        // For example:
-
-        ///////////////////////
-        // Pretend that we attached these to entity_in_sky
-        // before it died:
-        Health* health_1 = new Health();
-        Health* health_2 = new Health();
-        ////////////////////////
-
-        if(health_1 == health)
-        {
-            // Health 1 got detached.
-        }
-        else if(health_2 == health)
-        {
-            // Health 2 got detached.
-        }
-        ////////////////////////////////////////////////////////////
-    }
-
-    // Make sure we clear the events each frame.
-    world.clear_events();
-
-
     return 0;
 }

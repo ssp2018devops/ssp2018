@@ -1,12 +1,20 @@
 cmake_minimum_required(VERSION 3.5.0)
 
 
-add_executable(ecs-example-1
-  main.cpp
+add_executable(entity_in_sky
+  entity_in_sky.cpp
 )
 
+target_link_libraries(entity_in_sky
+  PUBLIC
+    ecs
+)
 
-target_link_libraries(ecs-example-1
+add_executable(gui_events
+gui_events.cpp
+)
+
+target_link_libraries(gui_events
   PUBLIC
     ecs
 )

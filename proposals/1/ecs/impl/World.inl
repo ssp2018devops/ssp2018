@@ -50,14 +50,41 @@ std::vector<std::tuple<T*...>> World::get_component_tuples(const Key& with, cons
     return {};
 }
 
-
 template<typename T>
-const std::vector<const void*>& World::get_detached_components(const Entity& entity) const
+const std::vector<ecs::Entity>& World::get_detached_entities() const
 {
-    // TODO: Implement method.
-    return std::vector<const void*>();
+    // TODO: Implement this method.
+    return std::vector<ecs::Entity>();
 }
 
 
+template<typename T>
+const std::vector<const T*>& World::get_detached_components() const
+{
+    // TODO: Implement this method.
+    return std::vector<const T*>();
+}
+
+
+template<typename T>
+const std::vector<ecs::Entity>& World::get_attached_entities() const
+{
+    // TODO: Implement this method.
+    return std::vector<ecs::Entity>();
+}
+
+
+template<typename T>
+const std::vector<const T*>& World::get_attached_components() const
+{
+    // TODO: Implement this method.
+    return std::vector<const T*>();
+}
+
+template<typename T>
+void World::detach_components()
+{
+    // TODO: Implement method.
+}
 
 }
