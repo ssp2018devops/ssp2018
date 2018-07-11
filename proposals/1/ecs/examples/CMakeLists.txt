@@ -18,3 +18,26 @@ target_link_libraries(gui_events
   PUBLIC
     ecs
 )
+
+
+
+add_executable(game_core
+  game_core.cpp
+)
+
+target_link_libraries(game_core
+  PUBLIC
+    ecs
+)
+
+
+
+
+add_executable(game_core_ecs
+game_core_ecs.cpp
+)
+
+target_link_libraries(game_core_ecs
+  PUBLIC
+    ecs
+)

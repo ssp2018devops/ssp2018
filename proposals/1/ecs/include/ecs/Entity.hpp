@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <type_traits>
 
 #include "Key.hpp"
 #include "../../impl/Ids.hpp"
@@ -121,6 +122,16 @@ namespace ecs
             ///
             template<typename T>
             T& attach(const T& component);
+
+ ///
+            ///
+            /// Attach a component by move.
+            /// \tparam T Component type.
+            /// \param component Component to attach.
+            /// \return Attached component.
+            ///
+            template<typename T>
+            T& attach_move(T&& component);
 
             ///
             /// Attach a component of type T.

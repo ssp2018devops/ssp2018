@@ -84,7 +84,7 @@ namespace ecs
             /// \return Matching component, or nullptr if no match was found.
             ///
             template<typename T>
-            T* get_component(const Key& with, const Key& without = Key()); 
+            T* get_component(const Key& with = Key(), const Key& without = Key()); 
 
             ///
             /// Get all components of type T that are attached
@@ -97,7 +97,7 @@ namespace ecs
             /// \return Matching components.
             ///
             template<typename T>
-            std::vector<T*> get_components(const Key& with, const Key& without = Key());
+            std::vector<T*> get_components(const Key& with = Key(), const Key& without = Key());
 
             ///
             /// Get components of types T that are attached to
@@ -110,7 +110,7 @@ namespace ecs
             /// \return Matching components, or nullptrs of no match was found.
             ///
             template<typename... T>
-            std::tuple<T*...> get_component_tuple(const Key& with, const Key& without = Key()); 
+            std::tuple<T*...> get_component_tuple(const Key& with = Key(), const Key& without = Key()); 
 
             ///
             /// Get all components of types T that are attached to
@@ -123,7 +123,7 @@ namespace ecs
             /// \return Matching components, or nullptrs of no match was found.
             ///
             template<typename... T>
-            std::vector<std::tuple<T*...>> get_component_tuples(const Key& with, const Key& without = Key()); 
+            std::vector<std::tuple<T*...>> get_component_tuples(const Key& with = Key(), const Key& without = Key()); 
 
             
 

@@ -64,6 +64,12 @@ T& Entity::attach(const T& component)
 }
 
 template<typename T>
+T& Entity::attach_move(T&& component)
+{
+    return *new(attach(TypeId::index<T>)) T(std::move(component));
+}
+
+template<typename T>
 T& Entity::attach() 
 { 
     return *new(attach(TypeId::index<T>)) T();
