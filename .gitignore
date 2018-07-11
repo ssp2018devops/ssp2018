@@ -7,3 +7,6 @@ CMakeFiles/*
 src/ext/glew/*
 build_vs/*
 build_ubuntu/*
+proposals/1/build
+proposals/1/ecs/build
+.vscode
