@@ -10,3 +10,5 @@ build_ubuntu/*
 proposals/1/build
 proposals/1/ecs/build
 .vscode
+
+proposals/1/gal/build
