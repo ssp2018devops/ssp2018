@@ -6,14 +6,13 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 
 add_library(gal SHARED
-  gal.cpp
+  src/gal.cpp
 )
 
-#target_include_directories(gal
-#  PUBLIC
-#    ${CMAKE_CURRENT_SOURCE_DIR}/include
-#)
+target_include_directories(gal
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 
 
-
-#add_subdirectory(examples)
+add_subdirectory(examples)
