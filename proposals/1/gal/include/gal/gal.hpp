@@ -304,7 +304,7 @@ namespace gal
 
   ///
   /// Assign data to buffer.
-  /// Destroys previously assigned data.
+  /// Closes all open streams to the buffer object.
   /// \param buffer Buffer object to assign to.
   /// \param data Array of data to assign.
   /// \param count Data element count.
@@ -318,8 +318,9 @@ namespace gal
 
   ///
   /// Stream data to buffer.
-  /// Opens a stream to the data
-  /// of a buffer object.
+  /// Opens an uninitialized stream to the data
+  /// of a buffer object. Closes all open streams
+  /// to the buffer object.
   /// \param buffer The buffer to stream to.
   /// \param count Data element count of the stream.
   /// \return The stream.
