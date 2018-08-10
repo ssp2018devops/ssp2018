@@ -26,16 +26,16 @@ void World::destroy_entity(Entity& entity)
     entity._id = 0;    
 }
 
-Entity World::get_entity(const Key& with, const Key& without)
+Entity World::get_entity(const Key& key)
 {
     // TODO: Implement "without".
-    return get_entity_with(with._types);
+    return get_entity_with(key._types);
 }
 
-std::vector<Entity> World::get_entities(const Key& with, const Key& without) 
+std::vector<Entity> World::get_entities(const Key& key) 
 { 
     // TODO: Implement "without".
-    return get_entities_with(with._types); 
+    return get_entities_with(key._types); 
 }
 
 Entity World::get_entity_with(const std::vector<TypeIndex>& ids)

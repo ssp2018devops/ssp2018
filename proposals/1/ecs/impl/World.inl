@@ -13,17 +13,17 @@ using namespace impl;
 
 
 template<typename ComponentT>
-ComponentT* World::get_component(const Key& with, const Key& without)
+ComponentT* World::get_component(const Key& key)
 {
     // TODO: Implement "without".
-    return (ComponentT*)get_component_with(TypeId::index<ComponentT>, with._types);
+    return (ComponentT*)get_component_with(TypeId::index<ComponentT>, key._types);
 }
 
 template<typename ComponentT>
-std::vector<ComponentT*> World::get_components(const Key& with, const Key& without)
+std::vector<ComponentT*> World::get_components(const Key& key)
 {
     // TODO: Implement "without".
-    std::vector<void*> result = get_components_with(TypeId::index<ComponentT>, with._types);
+    std::vector<void*> result = get_components_with(TypeId::index<ComponentT>, key._types);
 
     std::vector<ComponentT*> components;
     for(void* c : result)
@@ -35,7 +35,7 @@ std::vector<ComponentT*> World::get_components(const Key& with, const Key& witho
 }
 
 template<typename... T>
-std::tuple<T*...> World::get_component_tuple(const Key& with, const Key& without)
+std::tuple<T*...> World::get_component_tuple(const Key& key)
 {
     // TODO: Implement this method.
     // TODO: Implement "without".
@@ -43,7 +43,7 @@ std::tuple<T*...> World::get_component_tuple(const Key& with, const Key& without
 }
 
 template<typename... T>
-std::vector<std::tuple<T*...>> World::get_component_tuples(const Key& with, const Key& without)
+std::vector<std::tuple<T*...>> World::get_component_tuples(const Key& key)
 {
     // TODO: Implement method.
     // TODO: Implement "without".

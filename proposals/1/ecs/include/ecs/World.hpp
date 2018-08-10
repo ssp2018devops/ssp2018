@@ -49,21 +49,19 @@ namespace ecs
             /// Get an entity that matches key.
             /// If an entity has all the key types
             /// attached, it is a match. 
-            /// \param with Key to match against.
-            /// \param without Key to exclude with.
+            /// \param key Key to match against.
             /// \return Matching entity, or null entity if no match was found.
             ///
-            Entity get_entity(const Key& with, const Key& without = Key());
+            Entity get_entity(const Key& key = Key());
 
             ///
             /// Get all entities that matches key.
             /// If an entity has all the key types
             /// attached, it is a match. 
-            /// \param with Key to match against.
-            /// \param without Key to exclude with.
+            /// \param key Key to match against.
             /// \return Matching entities.
             ///
-            std::vector<Entity> get_entities(const Key& with, const Key& without = Key());
+            std::vector<Entity> get_entities(const Key& key = Key());
             
             ///
             /// Get all entities that have the same types of components 
@@ -79,12 +77,11 @@ namespace ecs
             /// If an entity has all the key types
             /// attached, it is a match. 
             /// \tparam T Component type to return.
-            /// \param with Key to match against.
-            /// \param without Key to exclude with.
+            /// \param key Key to match against.
             /// \return Matching component, or nullptr if no match was found.
             ///
             template<typename T>
-            T* get_component(const Key& with = Key(), const Key& without = Key()); 
+            T* get_component(const Key& key = Key()); 
 
             ///
             /// Get all components of type T that are attached
@@ -92,12 +89,11 @@ namespace ecs
             /// If an entity has all the key types
             /// attached, it is a match. 
             /// \tparam T Component type to return.
-            /// \param with Key to match against.
-            /// \param without Key to exclude with.
+            /// \param key Key to match against.
             /// \return Matching components.
             ///
             template<typename T>
-            std::vector<T*> get_components(const Key& with = Key(), const Key& without = Key());
+            std::vector<T*> get_components(const Key& key = Key());
 
             ///
             /// Get components of types T that are attached to
@@ -105,12 +101,11 @@ namespace ecs
             /// If an entity has all the key types
             /// attached, it is a match. 
             /// \tparam T Component types to return.
-            /// \param with Key to match against.
-            /// \param without Key to exclude with.
+            /// \param key Key to match against.
             /// \return Matching components, or nullptrs of no match was found.
             ///
             template<typename... T>
-            std::tuple<T*...> get_component_tuple(const Key& with = Key(), const Key& without = Key()); 
+            std::tuple<T*...> get_component_tuple(const Key& key = Key()); 
 
             ///
             /// Get all components of types T that are attached to
@@ -118,12 +113,11 @@ namespace ecs
             /// If an entity has all the key types
             /// attached, it is a match. 
             /// \tparam T Component types to return.
-            /// \param with Key to match against.
-            /// \param without Key to exclude with.
+            /// \param key Key to match against.
             /// \return Matching components, or nullptrs of no match was found.
             ///
             template<typename... T>
-            std::vector<std::tuple<T*...>> get_component_tuples(const Key& with = Key(), const Key& without = Key()); 
+            std::vector<std::tuple<T*...>> get_component_tuples(const Key& key = Key()); 
 
             
 
