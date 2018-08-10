@@ -42,7 +42,8 @@ void update_gravity(ecs::World& world, float dt)
 {
     // Create a key that matches all entities with HasGravity
     // component.
-    ecs::Key gravity_key = ecs::Key::create<HasGravity>();
+    ecs::Key gravity_key;
+    gravity_key.include<HasGravity>();
 
     // Update all altitude components that are attached
     // to entities with a HasGravity component.
@@ -56,7 +57,8 @@ void update_health(ecs::World& world)
 {
     // Create a key that matches all entities with HasGravity
     // component.
-    ecs::Key gravity_key = ecs::Key::create<HasGravity>();
+    ecs::Key gravity_key;
+    gravity_key.include<HasGravity>();
 
     // Update healths through tuples.
     for(std::tuple<Health*, Altitude*> tuple : world.get_component_tuples<Health, Altitude>(gravity_key))
@@ -69,7 +71,9 @@ void update_health(ecs::World& world)
 
 
     // Or update healths through entities.
-    ecs::Key key = ecs::Key::create<Health, Altitude, HasGravity>();
+    ecs::Key key;
+    key.include<Health, Altitude, HasGravity>();
+
     for(ecs::Entity entity : world.get_entities(key))
     {
         // Get existing altitude.
@@ -93,7 +97,9 @@ void update_health(ecs::World& world)
 void update_death(ecs::World& world)
 {
     // Get all entities with a Health component.
-    ecs::Key key = ecs::Key::create<Health>();
+    ecs::Key key;
+    key.include<Health>();
+    
     for(ecs::Entity entity : world.get_entities(key))
     {
         // Kill it if it has zero health.

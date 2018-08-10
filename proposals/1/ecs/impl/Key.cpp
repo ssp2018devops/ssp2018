@@ -28,6 +28,16 @@ Key Key::create(const std::vector<TypeIndex>& types)
     return key;
 }
 
+void Key::include(const std::vector<TypeIndex>& types)
+{
+    // TODO: Implement
+    *this = create(types);
+}
 
+void Key::exclude(const std::vector<TypeIndex>& types)
+{
+    // TODO: Implement
+    *this = create(types);
+}
 
 }

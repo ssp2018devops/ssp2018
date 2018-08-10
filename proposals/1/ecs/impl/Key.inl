@@ -7,11 +7,22 @@ namespace ecs
 {
     using namespace impl;
 
-    template<typename... T>
+    template<typename... IncludeTypes>
     Key Key::create()
     {
-        return create({TypeId::index<T>...});
+        return create({TypeId::index<IncludeTypes>...});
     }
 
 
+    template<typename... IncludeTypes>
+    void Key::include()
+    {
+        include({TypeId::index<IncludeTypes>...});
+    }
+
+    template<typename... ExcludeTypes>
+    void Key::exclude()
+    {
+        exclude({TypeId::index<ExcludeTypes>...});
+    }
 }
