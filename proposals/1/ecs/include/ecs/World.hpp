@@ -120,14 +120,11 @@ namespace ecs
             std::vector<std::tuple<T*...>> get_component_tuples(const Key& key = Key()); 
 
             
-
-
             ///
-            /// End current world tick.
-            /// Clears all events. Invalidates all 
-            /// pointers in events.
+            /// Swap event buffers.
+            /// Invalidates all pointers in events.
             ///
-            void end_tick();
+            void swap_events();
 
             ///
             /// Get entities destroyed since last clear_events.

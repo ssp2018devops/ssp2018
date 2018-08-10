@@ -65,12 +65,12 @@ int main()
     // Tick 1
     select(button_a);
     update_gui_selection(world); // selected 'a'
-    world.end_tick();
+    world.swap_events();
 
     // Tick 2
     select(button_b);
     update_gui_selection(world); // deselected 'a', selected 'b'
-    world.end_tick();
+    world.swap_events();
 
     return 0;
 }

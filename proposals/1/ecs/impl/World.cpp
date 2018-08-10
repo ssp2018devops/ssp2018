@@ -76,7 +76,7 @@ std::vector<Entity> World::from_ids(const std::vector<EntityId>& ids)
     return entities;
 }
 
-void World::end_tick()
+void World::swap_events()
 {
     // TODO: Implement this method.
 }
