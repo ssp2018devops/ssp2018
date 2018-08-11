@@ -180,10 +180,8 @@ namespace ecs
 
 
         private:            
-            Entity get_entity_with(const std::vector<TypeIndex>& ids);
-            std::vector<Entity> get_entities_with(const std::vector<TypeIndex>& ids);
-            void* get_component_with(TypeIndex type, std::vector<TypeIndex> with_types);
-            std::vector<void*> get_components_with(TypeIndex type, std::vector<TypeIndex> with_types);
+            void* get_component_with(TypeIndex type, const Key& key = Key());
+            std::vector<void*> get_components_with(TypeIndex type, const Key& key = Key());
 
             std::vector<Entity> from_ids(const std::vector<EntityId>& ids);
 

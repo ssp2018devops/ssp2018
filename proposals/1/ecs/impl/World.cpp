@@ -28,25 +28,12 @@ void World::destroy_entity(Entity& entity)
 
 Entity World::get_entity(const Key& key)
 {
-    // TODO: Implement "without".
-    return get_entity_with(key._types);
+    return Entity(_man->get_entity(key), *this, *_man);
 }
 
 std::vector<Entity> World::get_entities(const Key& key) 
 { 
-    // TODO: Implement "without".
-    return get_entities_with(key._types); 
-}
-
-Entity World::get_entity_with(const std::vector<TypeIndex>& ids)
-{
-    return Entity(_man->get_entity_with(ids), *this, *_man);
-}
-
-
-std::vector<Entity> World::get_entities_with(const std::vector<TypeIndex>& ids)
-{
-    return from_ids(_man->get_entities_with(ids));
+    return from_ids(_man->get_entities(key));
 }
 
 std::vector<Entity> World::get_entities(const Entity& entity)
@@ -54,14 +41,14 @@ std::vector<Entity> World::get_entities(const Entity& entity)
     return from_ids(_man->get_entities_like(entity._id));
 }
 
-void* World::get_component_with(TypeIndex type, std::vector<TypeIndex> with_types)
+void* World::get_component_with(TypeIndex type, const Key& key)
 {
-    return _man->get_component_with(type, with_types);
+    return _man->get_component_with(type, key);
 }
 
-std::vector<void*> World::get_components_with(TypeIndex type, std::vector<TypeIndex> with_types)
+std::vector<void*> World::get_components_with(TypeIndex type, const Key& key)
 {
-    return _man->get_components_with(type, with_types);
+    return _man->get_components_with(type, key);
 }
 
 std::vector<Entity> World::from_ids(const std::vector<EntityId>& ids)

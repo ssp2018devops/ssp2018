@@ -49,37 +49,14 @@ void* EntityManager::attach(TypeIndex component, EntityId entity)
 }
 
 
-EntityId EntityManager::get_entity_with(std::vector<TypeIndex> components) const
+EntityId EntityManager::get_entity(const Key& key) const
 {
-    size_t num_unique_components = 0;
-    for(size_t i = 0; i < components.size(); i++)
-    {
-        if(components[i] == -1)
-        {
-            continue;
-        }
+    size_t include_count = key.get_include_count();
+    std::map<EntityId, size_t> num_matches;
 
-        num_unique_components++;
-        for(size_t j = i + 1; j < components.size(); j++)
-        {
-            if(components[i] == components[j])
-            {
-                components[j] = -1;
-            }
-        }
-    }
-
-    struct Entry
+    for(TypeIndex component = 0; component < key._includes.size(); component++)
     {
-        size_t count = 0;
-        TypeIndex previous_type = -1;
-    };
-    std::map<EntityId, Entry> entities;
-
-    std::vector<size_t> indices;
-    for(TypeIndex component : components)
-    {
-        if(component == -1)
+        if(!key._includes[component])
         {
             continue;
         }
@@ -88,93 +65,37 @@ EntityId EntityManager::get_entity_with(std::vector<TypeIndex> components) const
         {
             if(_components.types[i] == component)
             {
-                indices.push_back(i);
-            }
-        }    
-
-        for(size_t i : indices)
-        {
-            Entry& e = entities[_components.entities[i]];
-            if(e.previous_type != component)
-            {
-                e.count++;
-                if(e.count == num_unique_components)
+                if (++num_matches[_components.entities[i]] == include_count)
                 {
                     return _components.entities[i];
                 }
-                e.previous_type = component;
             }
-        }
-
-        indices.clear();
+        }    
     }
 
     return 0;
 }
 
-std::vector<EntityId> EntityManager::get_entities_with(std::vector<TypeIndex> components) const
+std::vector<EntityId> EntityManager::get_entities(const Key& key) const
 {
-    size_t num_unique_components = 0;
-    for(size_t i = 0; i < components.size(); i++)
-    {
-        if(components[i] == -1)
-        {
-            continue;
-        }
+    size_t include_count = key.get_include_count();
+    std::map<EntityId, size_t> num_matches;
 
-        num_unique_components++;
-        for(size_t j = i + 1; j < components.size(); j++)
-        {
-            if(components[i] == components[j])
-            {
-                components[j] = -1;
-            }
-        }
-    }
-
-    struct Entry
+    std::vector<EntityId> matches;
+    for(TypeIndex component = 0; component < key._includes.size(); component++)
     {
-        size_t count = 0;
-        TypeIndex previous_type = -1;
-    };
-    std::map<EntityId, Entry> entities;
-
-    std::vector<size_t> indices;
-    for(TypeIndex component : components)
-    {
-        if(component == -1)
+        if(!key._includes[component])
         {
             continue;
         }
 
         for(size_t i = 0; i < _components.types.size(); i++)
         {
-            if(_components.types[i] == component)
+            if (++num_matches[_components.entities[i]] == include_count)
             {
-                indices.push_back(i);
+                matches.push_back(_components.entities[i]);
             }
         }    
-
-        for(size_t i : indices)
-        {
-            Entry& e = entities[_components.entities[i]];
-            if(e.previous_type != component)
-            {
-                e.count++;
-                e.previous_type = component;
-            }
-        }
-
-        indices.clear();
-    }
-
-    std::vector<EntityId> matches;
-    for(const std::pair<EntityId, Entry>& m : entities)
-    {
-        if(m.second.count == num_unique_components)
-        {
-            matches.push_back(m.first);
-        }
     }
 
     return matches;
@@ -196,7 +117,7 @@ std::vector<EntityId> EntityManager::get_entities_like(EntityId entity) const
         component = _components.types[component];
     }
 
-    return get_entities_with(components);
+    return get_entities(Key::create(components));
 }
 
 
@@ -222,7 +143,7 @@ std::vector<void*> EntityManager::detach(TypeIndex component, EntityId entity)
     return _components.erase_type(component, entity);
 }
 
-void* EntityManager::get_component(TypeIndex component, EntityId entity)
+void* EntityManager::get_component(TypeIndex component, EntityId entity) const
 {
     for(size_t i = 0; i < _components.entities.size(); i++)
     {
@@ -238,26 +159,17 @@ void* EntityManager::get_component(TypeIndex component, EntityId entity)
 
 
 
-void* EntityManager::get_component_with(TypeIndex type, std::vector<TypeIndex> with_types) const
+void* EntityManager::get_component_with(TypeIndex type, Key key) const
 {
-    with_types.push_back(type);
-    EntityId entity = get_entity_with(with_types);
-    for(size_t i = 0; i < _components.entities.size(); i++)
-    {
-        if(_components.entities[i] == entity &&
-           _components.types[i] == type)
-        {
-            return _components.components[i];
-        }
-    }
-    return nullptr;
+    key._includes[type] = true;
+    EntityId entity = get_entity(key);
+    return get_component(type, entity);
 }
 
-std::vector<void*> EntityManager::get_components_with(TypeIndex type, std::vector<TypeIndex> with_types) const
+std::vector<void*> EntityManager::get_components_with(TypeIndex type, Key key) const
 {
-    with_types.push_back(type);
-    std::vector<EntityId> entities = get_entities_with(with_types);
-
+    key._includes[type] = true;
+    std::vector<EntityId> entities = get_entities(key);
     std::vector<void*> components;
     for(size_t i = 0, j = 0; i < entities.size() && j < _components.types.size(); j++)
     {

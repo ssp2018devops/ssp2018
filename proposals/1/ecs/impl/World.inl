@@ -15,15 +15,13 @@ using namespace impl;
 template<typename ComponentT>
 ComponentT* World::get_component(const Key& key)
 {
-    // TODO: Implement "without".
-    return (ComponentT*)get_component_with(TypeId::index<ComponentT>, key._types);
+    return (ComponentT*)get_component_with(TypeId::index<ComponentT>, key);
 }
 
 template<typename ComponentT>
 std::vector<ComponentT*> World::get_components(const Key& key)
 {
-    // TODO: Implement "without".
-    std::vector<void*> result = get_components_with(TypeId::index<ComponentT>, key._types);
+    std::vector<void*> result = get_components_with(TypeId::index<ComponentT>, key);
 
     std::vector<ComponentT*> components;
     for(void* c : result)

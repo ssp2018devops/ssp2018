@@ -2,6 +2,7 @@
 #include "TypeId.hpp"
 
 #include <cassert>
+#include <algorithm>
 
 namespace ecs
 {
@@ -10,34 +11,32 @@ using namespace impl;
 
 Key::Key()
 {
-    _bits.resize(TypeId::sizes()->size());
+    _includes.resize(TypeId::sizes()->size());
 }
 
-Key Key::create(const std::vector<TypeIndex>& types)
+Key Key::create(const std::vector<TypeIndex>& includes)
 {
     Key key;
-    assert(key._bits.size() == TypeId::sizes()->size());
+    assert(key._includes.size() == TypeId::sizes()->size());
 
-    for(TypeIndex i : types)
-    {
-        key._bits[i] = true;
-    }
-
-    key._types = types;
+    key.include(includes);
 
     return key;
 }
 
-void Key::include(const std::vector<TypeIndex>& types)
+void Key::include(const std::vector<TypeIndex>& includes)
 {
-    // TODO: Implement
-    *this = create(types);
+    std::fill(_includes.begin(), _includes.end(), false);
+
+    for(TypeIndex i : includes)
+    {
+        _includes[i] = true;
+    }
 }
 
-void Key::exclude(const std::vector<TypeIndex>& types)
+size_t Key::get_include_count() const
 {
-    // TODO: Implement
-    *this = create(types);
+    return std::count(_includes.begin(), _includes.end(), true);
 }
 
 }

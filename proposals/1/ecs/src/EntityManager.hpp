@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 
+#include <ecs/Key.hpp>
 #include "../impl/Ids.hpp"
 
 namespace ecs
@@ -22,13 +23,13 @@ class EntityManager
         bool detach(TypeIndex component, void* data, EntityId entity);
         std::vector<void*> detach(TypeIndex component, EntityId entity);
 
-        EntityId get_entity_with(std::vector<TypeIndex> components) const;
-        std::vector<EntityId> get_entities_with(std::vector<TypeIndex> components) const;
+        EntityId get_entity(const Key& key = Key()) const;
+        std::vector<EntityId> get_entities(const Key& key = Key()) const;
         std::vector<EntityId> get_entities_like(EntityId entity) const;
 
-        void* get_component(TypeIndex component, EntityId entity);
-        void* get_component_with(TypeIndex type, std::vector<TypeIndex> with_types) const;
-        std::vector<void*> get_components_with(TypeIndex type, std::vector<TypeIndex> with_types) const;
+        void* get_component(TypeIndex component, EntityId entity) const;
+        void* get_component_with(TypeIndex type, Key key = Key()) const;
+        std::vector<void*> get_components_with(TypeIndex type, Key key = Key()) const;
 
     private:
         class ComponentStore

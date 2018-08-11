@@ -13,8 +13,7 @@ namespace ecs
     /// Describes an entity by its attached component types.
     /// Used as a search query to find matching entities
     /// by including entities with types that match
-    /// the key's includes, and excluding entities that match
-    /// the key's excludes.
+    /// the key's includes.
     ///
     class Key
     {
@@ -41,23 +40,20 @@ namespace ecs
             void include();
 
             ///
-            /// Set excludes.
-            /// \tparam ExcludeTypes Types to exclude.
+            /// Get amount of types included.
+            /// \return Include count.
             ///
-            template<typename... ExcludeTypes>
-            void exclude();
+            size_t get_include_count() const;
+
 
         private:
-            friend class World;
-            friend class Entity;
+            friend class EntityManager;
 
-            static Key create(const std::vector<TypeIndex>& types);
-            void include(const std::vector<TypeIndex>& types);
-            void exclude(const std::vector<TypeIndex>& types);
+            static Key create(const std::vector<TypeIndex>& includes);
+            void include(const std::vector<TypeIndex>& includes);
 
 
-            std::vector<bool> _bits;
-            std::vector<TypeIndex> _types;
+            std::vector<bool> _includes;
     };
 
 }

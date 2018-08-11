@@ -63,13 +63,17 @@ int main()
     element.name = "b";
 
     // Tick 1
+    update_gui_selection(world); // prints nothing
     select(button_a);
-    update_gui_selection(world); // selected 'a'
     world.swap_events();
 
     // Tick 2
+    update_gui_selection(world); // "selected 'a'"
     select(button_b);
-    update_gui_selection(world); // deselected 'a', selected 'b'
+    world.swap_events();
+
+    // Tick 3
+    update_gui_selection(world); // "deselected 'a', selected 'b'""
     world.swap_events();
 
     return 0;

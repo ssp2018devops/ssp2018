@@ -19,10 +19,4 @@ namespace ecs
     {
         include({TypeId::index<IncludeTypes>...});
     }
-
-    template<typename... ExcludeTypes>
-    void Key::exclude()
-    {
-        exclude({TypeId::index<ExcludeTypes>...});
-    }
 }
