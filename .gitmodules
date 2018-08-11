@@ -19,3 +19,12 @@
 [submodule "src/ext/jpeg"]
 	path = src/ext/jpeg
 	url = https://github.com/LuaDist/libjpeg
+[submodule "proposals/1/gal/examples/sdl2"]
+	path = proposals/1/gal/examples/sdl2
+	url = https://github.com/spurious/SDL-mirror
+[submodule "proposals/1/gal/examples/glew"]
+	path = proposals/1/gal/examples/glew
+	url = https://github.com/ssp2018devops/glew
+[submodule "proposals/1/gal/examples/glm"]
+	path = proposals/1/gal/examples/glm
+	url = https://github.com/g-truc/glm
