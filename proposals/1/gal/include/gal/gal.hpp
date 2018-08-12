@@ -85,6 +85,17 @@ namespace gal
   };
 
   ///
+  /// Viewport.
+  ///
+  struct Viewport
+  {
+    int x;
+    int y;
+    size_t width;
+    size_t height;
+  };
+
+  ///
   /// Initialize gal
   /// Must be called before any other gal call.
   ///
@@ -263,6 +274,15 @@ namespace gal
   void set(Draw* draw, TextureBuffer* buffer);
 
   ///
+  /// Assign viewport to draw object.
+  /// Only one viewport can be assigned to
+  /// a draw object.
+  /// \param draw Draw object to assign to.
+  /// \param viewport Viewport to assign.
+  ///
+  void set(Draw* draw, const Viewport& viewport);
+
+  ///
   /// Assign position buffer object to mesh object.
   /// Only one position buffer object can be assigned to
   /// a draw object.
@@ -341,4 +361,10 @@ namespace gal
   /// object.
   ///
   void draw(Draw* draw);
+
+
+  ///
+  /// Render draw calls to screen.
+  ///
+  void render();
 }
