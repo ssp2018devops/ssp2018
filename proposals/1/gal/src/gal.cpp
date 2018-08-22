@@ -117,6 +117,7 @@ GLuint createShaderProgram()
   return prog;
 }
 
+static_assert(std::is_same_v<GLushort, Index>, "Index must be same type as underlying graphics API");
 
 namespace impl
 {
@@ -217,6 +218,12 @@ void Mesh::set(const UvBuffer& buffer)
   _is_dirty = true;
 }
 
+void Mesh::set(const IndexBuffer& buffer)
+{
+  _indices = (IndexBuffer*)&buffer;
+  _is_dirty = true;
+}
+
 
 Draw::Draw()
 : _viewport(impl::_default_viewport)
@@ -289,6 +296,11 @@ void TextureBuffer::set(const Texture* data, size_t count)
   }
 }
 
+void IndexBuffer::set(const Index* data, size_t count)
+{
+  _indices.assign(data, data + count);
+}
+
 
 Position* PositionBuffer::stream(size_t count)
 {
@@ -354,7 +366,40 @@ TextureBuffer::~TextureBuffer()
   
 }
 
+IndexBuffer::IndexBuffer()
+{
 
+}
+
+IndexBuffer::~IndexBuffer()
+{
+  
+}
+
+void IndexBuffer::update()
+{
+  if(_vbo == 0)
+  {
+    glGenBuffers(1, &_vbo);
+  }
+
+  if(!_indices.empty())
+  {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Index) * _indices.size(), _indices.data(), GL_STATIC_DRAW);
+  
+    _size = _indices.size();
+    _indices.clear();
+  }
+}
+
+void IndexBuffer::render()
+{
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo);
+
+  static_assert(std::is_same_v<Index, GLushort>, "");
+  glDrawElements(GL_TRIANGLE_STRIP, _size, GL_UNSIGNED_SHORT, 0);
+}
 
 void Draw::update()
 {
@@ -385,6 +430,11 @@ void Mesh::update()
     
     _positions->update();
     _uvs->update();
+
+    if(_indices)
+    {
+      _indices->update();
+    }
     
     glBindVertexArray(_vao);
 
@@ -399,7 +449,15 @@ void Mesh::update()
 void Mesh::render()
 {
   glBindVertexArray(_vao);
-  _positions->render();
+
+  if(_indices)
+  {
+    _indices->render();
+  }
+  else
+  {
+    _positions->render();
+  }
 }
 
 void PositionBuffer::bind()

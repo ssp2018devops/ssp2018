@@ -90,6 +90,12 @@ namespace gal
     size_t height;
   };
 
+  ///
+  /// Index
+  ///
+  using Index = unsigned short;
+
+
   namespace impl
   {
     using Id = unsigned int;
@@ -104,6 +110,7 @@ namespace gal
   class PositionBuffer;
   class NormalBuffer;
   class UvBuffer;
+  class IndexBuffer;
 
   class Draw
   {
@@ -209,7 +216,6 @@ namespace gal
       /// one normal buffer object,
       /// one uv buffer object and
       /// one transparency buffer object.
-      /// \return A mesh object.
       ///
       Mesh();
 
@@ -217,15 +223,13 @@ namespace gal
       /// Destroy mesh object.
       /// Does not destroy objects
       /// assigned to this object.
-      /// \param mesh Mesh object to destroy.
       ///
       ~Mesh();
 
       ///
       /// Assign position buffer object to mesh object.
       /// Only one position buffer object can be assigned to
-      /// a draw object.
-      /// \param mesh Mesh object to assign to.
+      /// a mesh object.
       /// \param buffer Buffer object to assign.
       ///
       void set(const PositionBuffer& buffer);
@@ -233,9 +237,8 @@ namespace gal
       ///
       /// Assign normal buffer object to mesh object.
       /// Only one normal buffer object can be assigned to
-      /// a draw object.
+      /// a mesh object.
       /// Optional.
-      /// \param mesh Mesh object to assign to.
       /// \param buffer Buffer object to assign.
       ///
       void set(const NormalBuffer& buffer);
@@ -243,9 +246,8 @@ namespace gal
       ///
       /// Assign uv buffer object to mesh object.
       /// Only one uv buffer object can be assigned to
-      /// a draw object.
+      /// a mesh object.
       /// Optional.
-      /// \param mesh Mesh object to assign to.
       /// \param buffer Buffer object to assign.
       ///
       void set(const UvBuffer& buffer);
@@ -253,12 +255,20 @@ namespace gal
       ///
       /// Assign transparency buffer object to mesh object.
       /// Only one transparency buffer object can be assigned to
-      /// a draw object.
+      /// a mesh object.
       /// Optional.
-      /// \param mesh Mesh object to assign to.
       /// \param buffer Buffer object to assign.
       ///
       void set(const TransparencyBuffer& buffer);
+
+      ///
+      /// Assign index buffer object to mesh object.
+      /// Only one index buffer object can be assigned to
+      /// a mesh object.
+      /// Optional.
+      /// \param buffer Buffer object to assign.
+      ///
+      void set(const IndexBuffer& buffer);
 
 
 
@@ -271,6 +281,7 @@ namespace gal
       NormalBuffer* _normals = nullptr;
       UvBuffer* _uvs = nullptr;
       TransparencyBuffer* _transparencies = nullptr;
+      IndexBuffer* _indices = nullptr;
       impl::Id _vao = 0;
       bool _is_dirty = true;
   };
@@ -282,7 +293,6 @@ namespace gal
       /// Create a transform buffer object.
       /// A transform buffer object holds
       /// an array of Transform objects.
-      /// \return A transform buffer object.
       ///
       TransformBuffer();
 
@@ -292,7 +302,6 @@ namespace gal
       /// from all draw objects and
       /// deletes all Transform data 
       /// assigned to this buffer object.
-      /// \param buffer Buffer buffer object to destroy.
       ///
       ~TransformBuffer();
 
@@ -302,7 +311,6 @@ namespace gal
       ///
       /// Assign data to buffer.
       /// Closes all open streams to the buffer object.
-      /// \param buffer Buffer object to assign to.
       /// \param data Array of data to assign.
       /// \param count Data element count.
       ///
@@ -313,7 +321,6 @@ namespace gal
       /// Opens an uninitialized stream to the data
       /// of a buffer object. Closes all open streams
       /// to the buffer object.
-      /// \param buffer The buffer to stream to.
       /// \param count Data element count of the stream.
       /// \return The stream.
       ///
@@ -332,7 +339,6 @@ namespace gal
       /// Create a texture buffer object.
       /// A texture buffer object holds
       /// an array of Texture objects.
-      /// \return A texture buffer object.
       ///
       TextureBuffer();
 
@@ -342,7 +348,6 @@ namespace gal
       /// from all draw objects and
       /// deletes all Texture  data 
       /// assigned to this buffer object.
-      /// \param buffer Buffer buffer object to destroy.
       ///
       ~TextureBuffer();
 
@@ -352,7 +357,6 @@ namespace gal
       ///
       /// Assign data to buffer.
       /// Closes all open streams to the buffer object.
-      /// \param buffer Buffer object to assign to.
       /// \param data Array of data to assign.
       /// \param count Data element count.
       ///
@@ -363,7 +367,6 @@ namespace gal
       /// Opens an uninitialized stream to the data
       /// of a buffer object. Closes all open streams
       /// to the buffer object.
-      /// \param buffer The buffer to stream to.
       /// \param count Data element count of the stream.
       /// \return The stream.
       ///
@@ -391,7 +394,6 @@ namespace gal
       /// Create a position buffer object.
       /// A position buffer object holds
       /// an array of Position objects.
-      /// \return A position buffer object.
       ///
       PositionBuffer();
 
@@ -401,7 +403,6 @@ namespace gal
       /// from all mesh objects and
       /// deletes all Position data 
       /// assigned to this buffer object.
-      /// \param buffer Buffer object to destroy.
       ///
       ~PositionBuffer();
 
@@ -411,7 +412,6 @@ namespace gal
       ///
       /// Assign data to buffer.
       /// Closes all open streams to the buffer object.
-      /// \param buffer Buffer object to assign to.
       /// \param data Array of data to assign.
       /// \param count Data element count.
       ///
@@ -422,7 +422,6 @@ namespace gal
       /// Opens an uninitialized stream to the data
       /// of a buffer object. Closes all open streams
       /// to the buffer object.
-      /// \param buffer The buffer to stream to.
       /// \param count Data element count of the stream.
       /// \return The stream.
       ///
@@ -446,7 +445,6 @@ namespace gal
       /// Create a normal buffer object.
       /// A normal buffer object holds
       /// an array of Normal objects.
-      /// \return A normal buffer object.
       ///
       NormalBuffer();
 
@@ -457,7 +455,6 @@ namespace gal
       /// from all mesh objects and
       /// deletes all Normal data 
       /// assigned to this buffer object.
-      /// \param buffer Buffer buffer object to destroy.
       ///
       ~NormalBuffer();
 
@@ -467,7 +464,6 @@ namespace gal
       ///
       /// Assign data to buffer.
       /// Closes all open streams to the buffer object.
-      /// \param buffer Buffer object to assign to.
       /// \param data Array of data to assign.
       /// \param count Data element count.
       ///
@@ -478,7 +474,6 @@ namespace gal
       /// Opens an uninitialized stream to the data
       /// of a buffer object. Closes all open streams
       /// to the buffer object.
-      /// \param buffer The buffer to stream to.
       /// \param count Data element count of the stream.
       /// \return The stream.
       ///
@@ -498,7 +493,6 @@ namespace gal
       /// Create a uv buffer object.
       /// A uv buffer object holds
       /// an array of Uv objects.
-      /// \return A uv buffer object.
       ///
       UvBuffer();
 
@@ -508,7 +502,6 @@ namespace gal
       /// from all mesh objects and
       /// deletes all Uv data 
       /// assigned to this buffer object.
-      /// \param buffer Buffer buffer object to destroy.
       ///
       ~UvBuffer();
 
@@ -518,7 +511,6 @@ namespace gal
       ///
       /// Assign data to buffer.
       /// Closes all open streams to the buffer object.
-      /// \param buffer Buffer object to assign to.
       /// \param data Array of data to assign.
       /// \param count Data element count.
       ///
@@ -529,7 +521,6 @@ namespace gal
       /// Opens an uninitialized stream to the data
       /// of a buffer object. Closes all open streams
       /// to the buffer object.
-      /// \param buffer The buffer to stream to.
       /// \param count Data element count of the stream.
       /// \return The stream.
       ///
@@ -551,7 +542,6 @@ namespace gal
       /// Create a transparency buffer object.
       /// A transparency buffer object holds
       /// an array of Transparency objects.
-      /// \return A transparency buffer object.
       ///
       TransparencyBuffer();
 
@@ -561,7 +551,6 @@ namespace gal
       /// from all mesh objects and
       /// deletes all Transparency data 
       /// assigned to this buffer object.
-      /// \param buffer Buffer buffer object to destroy.
       ///
       ~TransparencyBuffer();
 
@@ -571,7 +560,6 @@ namespace gal
       ///
       /// Assign data to buffer.
       /// Closes all open streams to the buffer object.
-      /// \param buffer Buffer object to assign to.
       /// \param data Array of data to assign.
       /// \param count Data element count.
       ///
@@ -582,7 +570,6 @@ namespace gal
       /// Opens an uninitialized stream to the data
       /// of a buffer object. Closes all open streams
       /// to the buffer object.
-      /// \param buffer The buffer to stream to.
       /// \param count Data element count of the stream.
       /// \return The stream.
       ///
@@ -592,6 +579,56 @@ namespace gal
       void update();
 
       std::vector<Transparency> _transparencies;
+  };
+
+  class IndexBuffer
+  {
+    public:
+      ///
+      /// Create a transparency buffer object.
+      /// A transparency buffer object holds
+      /// an array of Transparency objects.
+      ///
+      IndexBuffer();
+
+      ///
+      /// Destroy transparency buffer object.
+      /// Unassigns the buffer object
+      /// from all mesh objects and
+      /// deletes all Transparency data 
+      /// assigned to this buffer object.
+      ///
+      ~IndexBuffer();
+
+      IndexBuffer(const IndexBuffer& other) = delete;
+      IndexBuffer& operator=(const IndexBuffer& other) = delete;
+
+      ///
+      /// Assign data to buffer.
+      /// Closes all open streams to the buffer object.
+      /// \param data Array of data to assign.
+      /// \param count Data element count.
+      ///
+      void set(const Index* data, size_t count);
+
+      ///
+      /// Stream data to buffer.
+      /// Opens an uninitialized stream to the data
+      /// of a buffer object. Closes all open streams
+      /// to the buffer object.
+      /// \param count Data element count of the stream.
+      /// \return The stream.
+      ///
+      Index* stream(size_t count);
+
+    private:
+      friend class Mesh;
+      void update();
+      void render();
+
+      std::vector<Index> _indices;
+      size_t _size = 0;
+      impl::Id _vbo = 0;
   };
 
   ///
