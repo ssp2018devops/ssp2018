@@ -22,8 +22,7 @@ int main()
   {
     {-0.5f,  -0.5f,  0.0f},
     {0.5f,   -0.5f,  0.0f},
-    {-0.5f,  0.5f,   0.0f},
-    {0.5f,   0.5f,   0.0f}
+    {0.f,  0.5f,   0.0f},
   };
   position_buffer.set(positions.data(), positions.size());
 
@@ -35,7 +34,6 @@ int main()
     {0.f, 0.f},
     {1.f, 0.f},
     {0.f, 1.f},
-    {1.f, 1.f}
   };
   uv_buffer.set(uvs.data(), uvs.size());
 
