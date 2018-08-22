@@ -109,12 +109,21 @@ namespace gal
   {
     public:
       ///
+      /// Indicates how to draw the mesh.
+      /// 
+      enum class Type : unsigned char
+      {
+        basic,
+        point_light,
+        directional_light,
+      };
+
+      ///
       /// Create a draw object.
       /// A draw object is a collection of
       /// one mesh object, one transform 
       /// buffer object and one texture
       /// buffer object.
-      /// \return A draw object.
       ///
       Draw();
 
@@ -122,25 +131,32 @@ namespace gal
       /// Assign mesh object to draw object.
       /// Only one mesh object can be assigned to
       /// a draw object.
-      /// \param draw Draw object to assign to.
       /// \param mesh Mesh object to assign.
       ///
       void set(const Mesh& mesh);
 
       ///
       /// Assign transform buffer object to draw object.
-      /// Only one transform buffer object can be assigned to
-      /// a draw object.
-      /// \param draw Draw object to assign to.
+      /// Only one transform or position buffer object 
+      /// can be assigned to a draw object at the same
+      /// time.
       /// \param buffer Buffer object to assign.
       ///
       void set(const TransformBuffer& buffer);
 
       ///
+      /// Assign position buffer object to draw object.
+      /// Only one transform or position buffer object 
+      /// can be assigned to a draw object at the same
+      /// time.
+      /// \param buffer Buffer object to assign.
+      ///
+      void set(const PositionBuffer& buffer);
+
+      ///
       /// Assign texture buffer object to draw object.
       /// Only one texture buffer object can be assigned to
       /// a draw object.
-      /// \param draw Draw object to assign to.
       /// \param buffer Buffer object to assign.
       ///
       void set(const TextureBuffer& buffer);
@@ -149,10 +165,16 @@ namespace gal
       /// Assign viewport to draw object.
       /// Only one viewport can be assigned to
       /// a draw object.
-      /// \param draw Draw object to assign to.
       /// \param viewport Viewport to assign.
       ///
       void set(const Viewport& viewport);
+
+      ///
+      /// Set draw type.
+      /// Default is "basic".
+      /// \param type Type to set.
+      ///
+      void set(Type type);
 
       ///
       /// Draw a draw object.
@@ -170,9 +192,11 @@ namespace gal
       void render();
 
       TransformBuffer* _transforms = nullptr;
+      PositionBuffer* _positions = nullptr;
       TextureBuffer* _textures = nullptr;
       Mesh* _mesh = nullptr;
       Viewport _viewport;
+      Type _type = Type::basic;
   };
 
   class Mesh
