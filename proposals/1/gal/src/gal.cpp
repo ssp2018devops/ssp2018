@@ -355,28 +355,6 @@ TextureBuffer::~TextureBuffer()
 }
 
 
-void initialize()
-{
-  GLenum glewInitResult = glewInit();
-  if (glewInitResult != GLEW_OK)
-  {
-      throw std::runtime_error("Failed to initialize GLEW");
-  }
-  std::cout << "[gal] initialized OpenGL with " << glGetString(GL_VERSION) << ", " << glGetString(GL_RENDERER) << std::endl;
-
-  glDisable(GL_DEPTH_TEST);
-  glClearColor(1.f, 0.f, 1.f, 1.f);
-
-  GLint viewport[4];
-  glGetIntegerv(GL_VIEWPORT, viewport);
-
-  impl::_default_viewport.x = viewport[0];
-  impl::_default_viewport.y = viewport[1];
-  impl::_default_viewport.width = viewport[2];
-  impl::_default_viewport.height = viewport[3];
-
-  impl::_shader = createShaderProgram();
-}
 
 void Draw::update()
 {
@@ -519,9 +497,38 @@ void TransparencyBuffer::update()
 }
 
 
+void initialize()
+{
+  GLenum glewInitResult = glewInit();
+  if (glewInitResult != GLEW_OK)
+  {
+      throw std::runtime_error("Failed to initialize GLEW");
+  }
+  std::cout << "[gal] initialized OpenGL with " << glGetString(GL_VERSION) << ", " << glGetString(GL_RENDERER) << std::endl;
+
+  glDisable(GL_DEPTH_TEST);
+  glClearColor(1.f, 0.f, 1.f, 1.f);
+
+  GLint viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+
+  impl::_default_viewport.x = viewport[0];
+  impl::_default_viewport.y = viewport[1];
+  impl::_default_viewport.width = viewport[2];
+  impl::_default_viewport.height = viewport[3];
+
+  impl::_shader = createShaderProgram();
+}
 
 void render()
 {
+  static bool is_initialized = false;
+  if (!is_initialized)
+  {
+    initialize();
+    is_initialized = true;
+  }
+
   impl::_draw_buffer.swap();
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

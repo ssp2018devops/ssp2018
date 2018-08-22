@@ -595,12 +595,6 @@ namespace gal
   };
 
   ///
-  /// Initialize gal
-  /// Must be called before any other gal call.
-  ///
-  void initialize();
-
-  ///
   /// Render draw calls to screen.
   ///
   void render();

@@ -96,12 +96,6 @@ std::vector<Pixel> generatePixels(size_t count)
 
 int main()
 {
-  SDL_Window* window = openWindow();
-  SDL_GLContext context = createGlContext(window);
-
-  // Initialize GAL after creation of rendering context.
-  gal::initialize();
-
   // Create mesh object.
   gal::Mesh mesh;
 
@@ -149,6 +143,8 @@ int main()
   texture_buffer.set(&tex, 1);
 
 
+  SDL_Window* window = openWindow();
+  SDL_GLContext context = createGlContext(window);
   bool isRunning = true;
   while(isRunning)
   {
