@@ -11,11 +11,23 @@ target_include_directories(glew PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_
 
 add_subdirectory(glm)
 
-add_executable(basic
-  basic.cpp
+add_executable(hello_triangle
+hello_triangle.cpp
 )
 
-target_link_libraries(basic 
+target_link_libraries(hello_triangle 
+  PUBLIC
+    gal
+    SDL2
+    glew
+    glm
+)
+
+add_executable(light
+light.cpp
+)
+
+target_link_libraries(light 
   PUBLIC
     gal
     SDL2
