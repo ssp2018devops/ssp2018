@@ -3,13 +3,103 @@
 
 #include <vector>
 #include <iostream>
-#include <sstream>
-#include <algorithm>
-#include <random>
 
 #include <SDL.h>
 
-#include <glm/glm.hpp>
+SDL_Window* openWindow();
+SDL_GLContext createGlContext(SDL_Window* window);
+void close(SDL_Window* window, SDL_GLContext context);
+
+int main()
+{
+  // Create mesh object.
+  gal::Mesh mesh;
+
+  // Add positions to mesh.
+  gal::PositionBuffer position_buffer;
+  mesh.set(position_buffer);
+  std::vector<gal::Position> positions = 
+  {
+    {-0.5f,  -0.5f,  0.0f},
+    {0.5f,   -0.5f,  0.0f},
+    {-0.5f,  0.5f,   0.0f},
+    {0.5f,   0.5f,   0.0f}
+  };
+  position_buffer.set(positions.data(), positions.size());
+
+  // Add UVs to mesh.
+  gal::UvBuffer uv_buffer;
+  mesh.set(uv_buffer);
+  std::vector<gal::Uv> uvs = 
+  { 
+    {0.f, 0.f},
+    {1.f, 0.f},
+    {0.f, 1.f},
+    {1.f, 1.f}
+  };
+  uv_buffer.set(uvs.data(), uvs.size());
+
+  // Create draw object.
+  gal::Draw draw;
+
+  // Add mesh to draw object.
+  draw.set(mesh);
+
+  // Add texture to draw object.
+  gal::TextureBuffer texture_buffer;
+  draw.set(texture_buffer);
+
+  gal::Texture tex;
+  tex.format = gal::Texture::Format::RGBA;
+  tex.width = 1;
+  tex.height = 1;
+
+  unsigned char blue[4] = {0, 0, 255, 255};
+  tex.data = (const char*)blue;
+  texture_buffer.set(&tex, 1);
+
+
+  SDL_Window* window = openWindow();
+  SDL_GLContext context = createGlContext(window);
+  bool isRunning = true;
+  while(isRunning)
+  {
+      SDL_PumpEvents();
+      SDL_Event event;
+      while(SDL_PollEvent(&event))
+      {
+          switch(event.type)
+          {
+              case SDL_KEYDOWN:
+                  if(event.key.keysym.sym == SDLK_ESCAPE)
+                  {
+                      isRunning = false;
+                  }
+                  break;
+
+              case SDL_QUIT:
+                  isRunning = false;
+                  break;
+
+              default:
+                  break;
+          }
+      }
+
+      // Draw the mesh.
+      draw.draw();
+
+      // Render results.
+      gal::render();
+
+
+      SDL_GL_SwapWindow(window);
+  }
+
+  close(window, context);
+
+  return 0;
+}
 
 
 void close(SDL_Window* window, SDL_GLContext context)
@@ -66,122 +156,3 @@ SDL_GLContext createGlContext(SDL_Window* window)
   }
   return context;
 }
-
-
-struct Pixel
-{
-  unsigned char r;
-  unsigned char g;
-  unsigned char b;
-  unsigned char a;
-};
-
-
-std::vector<Pixel> generatePixels(size_t count)
-{
-
-	std::vector<Pixel> pixels(count);
-
-  std::random_device rnd_device;
-  std::mt19937 mersenne(rnd_device());
-  std::uniform_int_distribution<unsigned char> dist(0, 255);
-
-  std::generate(pixels.begin(), pixels.end(), [&dist, &mersenne]() { return Pixel({dist(mersenne), dist(mersenne), dist(mersenne)}); });
-  return pixels;
-}
-
-
-
-
-
-int main()
-{
-  // Create mesh object.
-  gal::Mesh mesh;
-
-  // Add positions to mesh.
-  gal::PositionBuffer position_buffer;
-  mesh.set(position_buffer);
-  std::vector<gal::Position> positions = 
-  {
-    {-0.5f,  -0.5f,  0.0f},
-    {0.5f,   -0.5f,  0.0f},
-    {-0.5f,  0.5f,   0.0f},
-    {0.5f,   0.5f,   0.0f}
-  };
-  position_buffer.set(positions.data(), positions.size());
-
-  // Add UVs to mesh.
-  gal::UvBuffer uv_buffer;
-  mesh.set(uv_buffer);
-  std::vector<gal::Uv> uvs = 
-  { 
-    {0.f, 0.f},
-    {1.f, 0.f},
-    {0.f, 1.f},
-    {1.f, 1.f}
-  };
-  uv_buffer.set(uvs.data(), uvs.size());
-
-  // Create draw object.
-  gal::Draw draw;
-
-  // Add mesh to draw object.
-  draw.set(mesh);
-
-  // Add texture to draw object.
-  gal::TextureBuffer texture_buffer;
-  draw.set(texture_buffer);
-
-  gal::Texture tex;
-  tex.format = gal::Texture::Format::RGBA;
-  tex.width = 32;
-  tex.height = 32;
-
-  std::vector<Pixel> pixels = generatePixels(tex.width * tex.height);
-  tex.data = (const char*)pixels.data();
-  texture_buffer.set(&tex, 1);
-
-
-  SDL_Window* window = openWindow();
-  SDL_GLContext context = createGlContext(window);
-  bool isRunning = true;
-  while(isRunning)
-  {
-      SDL_PumpEvents();
-      SDL_Event event;
-      while(SDL_PollEvent(&event))
-      {
-          switch(event.type)
-          {
-              case SDL_KEYDOWN:
-                  if(event.key.keysym.sym == SDLK_ESCAPE)
-                  {
-                      isRunning = false;
-                  }
-                  break;
-
-              case SDL_QUIT:
-                  isRunning = false;
-                  break;
-
-              default:
-                  break;
-          }
-      }
-
-      // Draw the mesh.
-      draw.draw();
-
-      // Render results.
-      gal::render();
-
-
-      SDL_GL_SwapWindow(window);
-  }
-
-  close(window, context);
-
-  return 0;
-}
-
