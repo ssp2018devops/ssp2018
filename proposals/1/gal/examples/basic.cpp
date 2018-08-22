@@ -90,131 +90,102 @@ std::vector<Pixel> generatePixels(size_t count)
   return pixels;
 }
 
+
+
+
+
 int main()
 {
-    SDL_Window* window = openWindow();
-    SDL_GLContext context = createGlContext(window);
+  SDL_Window* window = openWindow();
+  SDL_GLContext context = createGlContext(window);
 
-    gal::initialize();
+  // Initialize GAL after creation of rendering context.
+  gal::initialize();
 
-    gal::Mesh* mesh = gal::create_mesh();
-    gal::PositionBuffer* position_buffer = gal::create_position_buffer();
-    gal::UvBuffer* uv_buffer = gal::create_uv_buffer();
+  // Create mesh object.
+  gal::Mesh mesh;
 
-    gal::set(mesh, position_buffer);
-    gal::set(mesh, uv_buffer);
+  // Add positions to mesh.
+  gal::PositionBuffer position_buffer;
+  mesh.set(position_buffer);
+  std::vector<gal::Position> positions = 
+  {
+    {-0.5f,  -0.5f,  0.0f},
+    {0.5f,   -0.5f,  0.0f},
+    {-0.5f,  0.5f,   0.0f},
+    {0.5f,   0.5f,   0.0f}
+  };
+  position_buffer.set(positions.data(), positions.size());
 
-    std::vector<gal::Position> positions = 
-    {
-      {-0.5f,  -0.5f,  0.0f},
-      {0.5f,   -0.5f,  0.0f},
-      {-0.5f,  0.5f,   0.0f},
-      {0.5f,   0.5f,   0.0f}
-    };
+  // Add UVs to mesh.
+  gal::UvBuffer uv_buffer;
+  mesh.set(uv_buffer);
+  std::vector<gal::Uv> uvs = 
+  { 
+    {0.f, 0.f},
+    {1.f, 0.f},
+    {0.f, 1.f},
+    {1.f, 1.f}
+  };
+  uv_buffer.set(uvs.data(), uvs.size());
 
-    std::vector<gal::Uv> uvs = 
-    { 
-      {0.f, 0.f},
-      {1.f, 0.f},
-      {0.f, 1.f},
-      {1.f, 1.f}
-    };
+  // Create draw object.
+  gal::Draw draw;
 
-    gal::set(position_buffer, positions.data(), positions.size());
-    gal::set(uv_buffer, uvs.data(), uvs.size());
+  // Add mesh to draw object.
+  draw.set(mesh);
 
-    gal::Draw* draw = gal::create_draw();
-    gal::TextureBuffer* texture_buffer = gal::create_texture_buffer();
+  // Add texture to draw object.
+  gal::TextureBuffer texture_buffer;
+  draw.set(texture_buffer);
 
-    gal::set(draw, mesh);
-    gal::set(draw, texture_buffer);
+  gal::Texture tex;
+  tex.format = gal::Texture::Format::RGBA;
+  tex.width = 32;
+  tex.height = 32;
 
-    gal::Texture tex;
-    tex.format = gal::Texture::Format::RGBA;
-    tex.width = 32;
-    tex.height = 32;
-
-    std::vector<Pixel> pixels = generatePixels(tex.width * tex.height);
-    tex.data = (const char*)pixels.data();
-
-    std::vector<gal::Texture> textures = { tex };
-    gal::set(texture_buffer, textures.data(), textures.size());
-
-
-    bool isRunning = true;
-    while(isRunning)
-    {
-        SDL_PumpEvents();
-        SDL_Event event;
-        while(SDL_PollEvent(&event))
-        {
-            switch(event.type)
-            {
-                case SDL_KEYDOWN:
-                    if(event.key.keysym.sym == SDLK_ESCAPE)
-                    {
-                        isRunning = false;
-                    }
-                    break;
-
-                case SDL_QUIT:
-                    isRunning = false;
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        gal::draw(draw);
-        gal::render();
-        SDL_GL_SwapWindow(window);
-    }
-
-    close(window, context);
-
-    return 0;
-
-    // gal::initialize();
-
-    // gal::Mesh* mesh = gal::create_mesh();
-    
-    // gal::PositionBuffer* position_buffer = gal::create_position_buffer();
-    // gal::NormalBuffer* normal_buffer = gal::create_normal_buffer();
-    // gal::UvBuffer* uv_buffer = gal::create_uv_buffer();
-    
-    // gal::set(mesh, position_buffer);
-    // gal::set(mesh, normal_buffer);
-    // gal::set(mesh, uv_buffer);
-
-    // std::vector<gal::Position> positions = { /* yada yada yada */ };
-    // std::vector<gal::Normal> normals = { /* yada yada yada */ };
-    // std::vector<gal::Uv> uvs = { /* yada yada yada */ };
-
-    // gal::set(position_buffer, positions.data(), positions.size());
-    // gal::set(normal_buffer, normals.data(), normals.size());
-    // gal::set(uv_buffer, uvs.data(), uvs.size());
+  std::vector<Pixel> pixels = generatePixels(tex.width * tex.height);
+  tex.data = (const char*)pixels.data();
+  texture_buffer.set(&tex, 1);
 
 
+  bool isRunning = true;
+  while(isRunning)
+  {
+      SDL_PumpEvents();
+      SDL_Event event;
+      while(SDL_PollEvent(&event))
+      {
+          switch(event.type)
+          {
+              case SDL_KEYDOWN:
+                  if(event.key.keysym.sym == SDLK_ESCAPE)
+                  {
+                      isRunning = false;
+                  }
+                  break;
+
+              case SDL_QUIT:
+                  isRunning = false;
+                  break;
+
+              default:
+                  break;
+          }
+      }
+
+      // Draw the mesh.
+      draw.draw();
+
+      // Render results.
+      gal::render();
 
 
-    // gal::Draw* draw = gal::create_draw();
+      SDL_GL_SwapWindow(window);
+  }
 
-    // gal::TransformBuffer* transform_buffer = gal::create_transform_buffer();
-    // gal::TextureBuffer* texture_buffer = gal::create_texture_buffer();
+  close(window, context);
 
-    // gal::set(draw, mesh);
-    // gal::set(draw, transform_buffer);
-    // gal::set(draw, texture_buffer);
-
-    // std::vector<gal::Transform> transforms = { /* yada yada yada */ };
-    // std::vector<gal::Texture> textures = { /* yada yada yada */ };
-
-    // gal::set(transform_buffer, transforms.data(), transforms.size());
-    // gal::set(texture_buffer, textures.data(), textures.size());
-
-    // gal::draw(draw);
-
-
+  return 0;
 }
 

@@ -5,11 +5,15 @@
 #include <iostream>
 #include <cassert>
 #include <sstream>
+#include <type_traits>
 
 #include <GL/glew.h>
 
+
+
 namespace gal
 {
+
 
 void printShaderLog(GLuint shader)
 {
@@ -114,113 +118,242 @@ GLuint createShaderProgram()
 }
 
 
-
-struct Mesh
+namespace impl
 {
-  PositionBuffer* positions = nullptr;
-  NormalBuffer* normals = nullptr;
-  UvBuffer* uvs = nullptr;
-  TransparencyBuffer* transparencies = nullptr;
-  GLuint vao = 0;
-  bool is_dirty = true;
-};
 
-struct PositionBuffer
-{
-  std::vector<Position> positions;
-  size_t size = 0;
-  GLuint vbo = 0;
-};
-
-struct NormalBuffer
-{
-  std::vector<Normal> normals;
-  GLuint vbo = 0;
-};
-
-struct UvBuffer
-{
-  std::vector<Uv> uvs;
-  GLuint vbo = 0;
-};
-
-struct TransparencyBuffer
-{
-  std::vector<Transparency> transparencies;
-};
-
-struct Draw
-{
-  TransformBuffer* transforms = nullptr;
-  TextureBuffer* textures = nullptr;
-  Mesh* mesh = nullptr;
-  Viewport viewport;
-};
-
-struct TransformBuffer
-{
-  std::vector<Transform> transforms;
-};
-
-struct InternalTexture
-{
-  Texture header;
-  std::vector<char> data;
-};
-
-struct TextureBuffer
-{
-  std::vector<InternalTexture> textures;
-  GLuint tex = 0;
-};
-
-class Buffer
-{
-  public:
-    Buffer();
-
-    std::vector<Draw*>& get_front();
-    std::vector<Draw*>& get_back();
-    void swap();
+  static_assert(std::is_same_v<GLuint, Id>, "Id must be same type as underlying graphics API");
 
 
-  private:
-    std::vector<Draw*> _buffer_1;
-    std::vector<Draw*> _buffer_2;
+  class Renderer
+  {
+    public:
+      static void render(std::vector<Draw*>& draws);
+  };
 
-    std::vector<Draw*>* _front_buffer;
-    std::vector<Draw*>* _back_buffer;
-};
+  void Renderer::render(std::vector<Draw*>& draws)
+  {
+    for(Draw* draw : draws)
+    {
+      draw->update();
+      draw->render();
+    }
+  }
 
-Buffer::Buffer()
-: _front_buffer(&_buffer_1)
-, _back_buffer(&_buffer_2)
+  class Buffer
+  {
+    public:
+      Buffer();
+
+      std::vector<Draw*>& get_front();
+      std::vector<Draw*>& get_back();
+      void swap();
+
+
+    private:
+      std::vector<Draw*> _buffer_1;
+      std::vector<Draw*> _buffer_2;
+
+      std::vector<Draw*>* _front_buffer;
+      std::vector<Draw*>* _back_buffer;
+  };
+
+
+
+  Buffer::Buffer()
+  : _front_buffer(&_buffer_1)
+  , _back_buffer(&_buffer_2)
+  {
+
+  }
+
+  std::vector<Draw*>& Buffer::get_front()
+  {
+    return *_front_buffer;
+  }
+
+  std::vector<Draw*>& Buffer::get_back()
+  {
+    return *_back_buffer;
+  }
+
+  void Buffer::swap()
+  {
+    _front_buffer->clear();
+    std::swap(_front_buffer, _back_buffer);
+  }
+
+
+  namespace
+  {
+    Buffer _draw_buffer;
+    Viewport _default_viewport;
+    GLuint _shader;
+  }
+    
+
+
+}
+
+
+Mesh::Mesh()
 {
 
 }
 
-std::vector<Draw*>& Buffer::get_front()
-{
-  return *_front_buffer;
+Mesh::~Mesh()
+{ 
 }
 
-std::vector<Draw*>& Buffer::get_back()
+
+void Mesh::set(const PositionBuffer& buffer)
 {
-  return *_back_buffer;
+  _positions = (PositionBuffer*)&buffer;
+  _is_dirty = true;
 }
 
-void Buffer::swap()
+void Mesh::set(const UvBuffer& buffer)
 {
-  _front_buffer->clear();
-  std::swap(_front_buffer, _back_buffer);
+  _uvs = (UvBuffer*)&buffer;
+  _is_dirty = true;
 }
 
-namespace
+
+Draw::Draw()
+: _viewport(impl::_default_viewport)
 {
-  Buffer _draw_buffer;
-  Viewport _default_viewport;
-  GLuint _shader;
+
 }
+
+
+void Draw::set(const Mesh& mesh)
+{
+  _mesh = (Mesh*)&mesh;
+}
+
+void Draw::set(const TransformBuffer& buffer)
+{
+  _transforms = (TransformBuffer*)&buffer;
+}
+
+void Draw::set(const TextureBuffer& buffer)
+{
+  _textures = (TextureBuffer*)&buffer;
+}
+
+void Draw::set(const Viewport& viewport)
+{
+  _viewport = viewport;
+}
+
+
+void Draw::draw() const
+{
+  impl::_draw_buffer.get_back().push_back((Draw*)this);
+}
+
+
+void PositionBuffer::set(const Position* data, size_t count)
+{
+  _positions.assign(data, data + count);
+}
+
+void NormalBuffer::set(const Normal* data, size_t count)
+{
+  _normals.assign(data, data + count);
+}
+
+void UvBuffer::set(const Uv* data, size_t count)
+{
+  _uvs.assign(data, data + count);
+}
+
+void TransparencyBuffer::set(const Transparency* data, size_t count)
+{
+  _transparencies.assign(data, data + count);
+}
+
+void TransformBuffer::set(const Transform* data, size_t count)
+{
+  _transforms.assign(data, data + count);
+}
+
+void TextureBuffer::set(const Texture* data, size_t count)
+{
+  _textures.resize(count);
+  for(size_t i = 0; i < count; i++)
+  {
+    InternalTexture& tex = _textures[i];
+    tex.header = data[i];
+    assert(tex.header.format == Texture::Format::RGBA);
+    tex.data.assign(tex.header.data, tex.header.data + tex.header.width * tex.header.height * 4);
+  }
+}
+
+
+Position* PositionBuffer::stream(size_t count)
+{
+  return nullptr;
+}
+
+Normal* NormalBuffer::stream(size_t count)
+{
+  return nullptr;
+}
+
+Uv* UvBuffer::stream(size_t count)
+{
+  return nullptr;
+}
+
+Transparency* TransparencyBuffer::stream(size_t count)
+{
+  return nullptr;
+}
+
+Transform* TransformBuffer::stream(size_t count)
+{
+  return nullptr;
+}
+
+Texture* TextureBuffer::stream(size_t count)
+{
+  return nullptr;
+}
+
+
+
+PositionBuffer::PositionBuffer()
+{
+
+}
+
+PositionBuffer::~PositionBuffer()
+{
+  
+}
+
+
+UvBuffer::UvBuffer()
+{
+
+}
+
+UvBuffer::~UvBuffer()
+{
+  
+}
+
+
+TextureBuffer::TextureBuffer()
+{
+
+}
+
+TextureBuffer::~TextureBuffer()
+{
+  
+}
+
 
 void initialize()
 {
@@ -237,303 +370,163 @@ void initialize()
   GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
 
-  _default_viewport.x = viewport[0];
-  _default_viewport.y = viewport[1];
-  _default_viewport.width = viewport[2];
-  _default_viewport.height = viewport[3];
+  impl::_default_viewport.x = viewport[0];
+  impl::_default_viewport.y = viewport[1];
+  impl::_default_viewport.width = viewport[2];
+  impl::_default_viewport.height = viewport[3];
 
-  _shader = createShaderProgram();
+  impl::_shader = createShaderProgram();
 }
 
-Draw* create_draw()
+void Draw::update()
 {
-  Draw* draw = new Draw();
-  draw->viewport = _default_viewport;
-  return draw;
+  _mesh->update();
+  _textures->update();
 }
 
-Mesh* create_mesh()
+void Draw::render()
 {
-  return new Mesh();
+  _textures->bind();
+  _mesh->render();  
 }
 
-
-PositionBuffer* create_position_buffer()
+void Mesh::update()
 {
-  return new PositionBuffer();
-}
-
-NormalBuffer* create_normal_buffer()
-{
-  return new NormalBuffer();
-}
-
-UvBuffer* create_uv_buffer()
-{
-  return new UvBuffer();
-}
-
-TransparencyBuffer* create_transparency_buffer()
-{
-  return new TransparencyBuffer();
-}
-
-TransformBuffer* create_transform_buffer()
-{
-  return new TransformBuffer();
-}
-
-TextureBuffer* create_texture_buffer()
-{
-  return new TextureBuffer();
-}
-
-
-void destroy(Draw* draw)
-{
-  delete draw;
-}
-
-void destroy(Mesh* mesh)
-{
-  delete mesh;
-}
-
-void destroy(PositionBuffer* buffer)
-{
-  delete buffer;
-}
-
-void destroy(NormalBuffer* buffer)
-{
-  delete buffer;
-}
-
-void destroy(UvBuffer* buffer)
-{
-  delete buffer;
-}
-
-void destroy(TransparencyBuffer* buffer)
-{
-  delete buffer;
-}
-
-void destroy(TransformBuffer* buffer)
-{
-  delete buffer;
-}
-
-void destroy(TextureBuffer* buffer)
-{
-  delete buffer;
-}
-
-
-void set(Draw* draw, Mesh* mesh)
-{
-  draw->mesh = mesh;
-}
-
-void set(Draw* draw, TransformBuffer* buffer)
-{
-  draw->transforms = buffer;
-}
-
-void set(Draw* draw, TextureBuffer* buffer)
-{
-  draw->textures = buffer;
-}
-
-void set(Draw* draw, const Viewport& viewport)
-{
-  draw->viewport = viewport;
-}
-
-void set(Mesh* mesh, PositionBuffer* buffer)
-{
-  mesh->positions = buffer;
-  mesh->is_dirty = true;
-}
-
-void set(Mesh* mesh, NormalBuffer* buffer)
-{
-  mesh->normals = buffer;
-  mesh->is_dirty = true;
-}
-
-void set(Mesh* mesh, UvBuffer* buffer)
-{
-  mesh->uvs = buffer;
-  mesh->is_dirty = true;
-}
-
-void set(Mesh* mesh, TransparencyBuffer* buffer)
-{
-  mesh->transparencies = buffer;
-  mesh->is_dirty = true;
-}
-
-void set(PositionBuffer* buffer, const Position* data, size_t count)
-{
-  buffer->positions.assign(data, data + count);
-}
-
-void set(NormalBuffer* buffer, const Normal* data, size_t count)
-{
-  buffer->normals.assign(data, data + count);
-}
-
-void set(UvBuffer* buffer, const Uv* data, size_t count)
-{
-  buffer->uvs.assign(data, data + count);
-}
-
-void set(TransparencyBuffer* buffer, const Transparency* data, size_t count)
-{
-  buffer->transparencies.assign(data, data + count);
-}
-
-void set(TransformBuffer* buffer, const Transform* data, size_t count)
-{
-  buffer->transforms.assign(data, data + count);
-}
-
-void set(TextureBuffer* buffer, const Texture* data, size_t count)
-{
-  buffer->textures.resize(count);
-  for(size_t i = 0; i < count; i++)
+  if(_vao == 0)
   {
-    InternalTexture& tex = buffer->textures[i];
-    tex.header = data[i];
-    assert(tex.header.format == Texture::Format::RGBA);
-    tex.data.assign(tex.header.data, tex.header.data + tex.header.width * tex.header.height * 4);
+    glGenVertexArrays(1, &_vao);
+    glBindVertexArray(_vao);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+  }
+
+  if(_is_dirty)
+  {
+    _is_dirty = false;
+    
+    _positions->update();
+    _uvs->update();
+    
+    glBindVertexArray(_vao);
+
+    _positions->bind();
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Position), 0);
+
+    _uvs->bind();
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Uv), 0);
   }
 }
 
-
-Position* stream(PositionBuffer* buffer, size_t count)
+void Mesh::render()
 {
-  return nullptr;
+  glBindVertexArray(_vao);
+  _positions->render();
 }
 
-Normal* stream(NormalBuffer* buffer, size_t count)
+void PositionBuffer::bind()
 {
-  return nullptr;
+  glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 }
 
-Uv* stream(UvBuffer* buffer, size_t count)
+void PositionBuffer::render()
 {
-  return nullptr;
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, _size);
 }
 
-Transparency* stream(TransparencyBuffer* buffer, size_t count)
+void UvBuffer::bind()
 {
-  return nullptr;
+  glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 }
 
-Transform* stream(TransformBuffer* buffer, size_t count)
+void TextureBuffer::bind()
 {
-  return nullptr;
+  glBindTexture(GL_TEXTURE_2D, _tex);
 }
 
-Texture* stream(TextureBuffer* buffer, size_t count)
+void TransformBuffer::update()
 {
-  return nullptr;
+  
+}
+
+void TextureBuffer::update()
+{
+  if(_tex == 0)
+  {
+    glGenTextures(1, &_tex);
+    glBindTexture(GL_TEXTURE_2D, _tex);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  }
+
+  if(!_textures[0].data.empty())
+  {
+    InternalTexture& tex = _textures[0];
+    glBindTexture(GL_TEXTURE_2D, _tex);
+
+    assert(tex.header.format == Texture::Format::RGBA);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex.header.width, tex.header.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.data.data());
+
+    tex.data.clear();
+  }
+}
+
+void PositionBuffer::update()
+{
+  if(_vbo == 0)
+  {
+    glGenBuffers(1, &_vbo);
+  }
+
+  if(!_positions.empty())
+  {
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Position) * _positions.size(), _positions.data(), GL_STATIC_DRAW);
+
+    _size = _positions.size();
+    _positions.clear();
+  }
+}
+
+void NormalBuffer::update()
+{
+  
+}
+
+void UvBuffer::update()
+{
+  if(_vbo == 0)
+  {
+    glGenBuffers(1, &_vbo);
+  }
+
+
+  if(!_uvs.empty())
+  {
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Uv) * _uvs.size(), _uvs.data(), GL_STATIC_DRAW);
+
+    _uvs.clear();
+  }
+}
+
+void TransparencyBuffer::update()
+{
+  
 }
 
 
-void draw(Draw* draw)
-{
-  _draw_buffer.get_back().push_back(draw);
-}
 
 void render()
 {
-  _draw_buffer.swap();
+  impl::_draw_buffer.swap();
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  for(Draw* draw : _draw_buffer.get_front())
-  {
-    if(draw->mesh->vao == 0)
-    {
-      glGenVertexArrays(1, &draw->mesh->vao);
-      glBindVertexArray(draw->mesh->vao);
-
-      glEnableVertexAttribArray(0);
-      glEnableVertexAttribArray(1);
-    }
-
-    if(draw->mesh->positions->vbo == 0)
-    {
-      glGenBuffers(1, &draw->mesh->positions->vbo);
-    }
-
-    if(draw->mesh->uvs->vbo == 0)
-    {
-      glGenBuffers(1, &draw->mesh->uvs->vbo);
-    }
-
-    if(!draw->mesh->positions->positions.empty())
-    {
-      PositionBuffer& buf = *draw->mesh->positions;
-      glBindBuffer(GL_ARRAY_BUFFER, buf.vbo);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(Position) * buf.positions.size(), buf.positions.data(), GL_STATIC_DRAW);
-
-      buf.size = buf.positions.size();
-      buf.positions.clear();
-    }
-
-    if(!draw->mesh->uvs->uvs.empty())
-    {
-      UvBuffer& buf = *draw->mesh->uvs;
-      glBindBuffer(GL_ARRAY_BUFFER, buf.vbo);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(Uv) * buf.uvs.size(), buf.uvs.data(), GL_STATIC_DRAW);
-
-      buf.uvs.clear();
-    }
-
-    if(draw->mesh->is_dirty)
-    {
-      Mesh& mesh = *draw->mesh;
-      mesh.is_dirty = false;
-	    glBindVertexArray(mesh.vao);
-
-      glBindBuffer(GL_ARRAY_BUFFER, mesh.positions->vbo);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Position), 0);
-
-      glBindBuffer(GL_ARRAY_BUFFER, mesh.uvs->vbo);
-      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Uv), 0);
-    }
-
-
-    if(draw->textures->tex == 0)
-    {
-      glGenTextures(1, &draw->textures->tex);
-      glBindTexture(GL_TEXTURE_2D, draw->textures->tex);
-
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    }
-
-    if(!draw->textures->textures[0].data.empty())
-    {
-      InternalTexture& tex = draw->textures->textures[0];
-      glBindTexture(GL_TEXTURE_2D, draw->textures->tex);
-
-      assert(tex.header.format == Texture::Format::RGBA);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex.header.width, tex.header.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.data.data());
-
-      tex.data.clear();
-    }
-  
-    glBindVertexArray(draw->mesh->vao);
-    glBindTexture(GL_TEXTURE_2D, draw->textures->tex);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, draw->mesh->positions->size);
-  }
+  impl::Renderer::render(impl::_draw_buffer.get_front());
 }
 
 

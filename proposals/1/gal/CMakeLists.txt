@@ -9,6 +9,10 @@ add_library(gal SHARED
   src/gal.cpp
 )
 
+target_compile_options(gal PRIVATE
+  -std=c++17
+)
+
 target_include_directories(gal
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
