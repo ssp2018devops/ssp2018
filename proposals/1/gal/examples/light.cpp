@@ -14,129 +14,94 @@ void close(SDL_Window* window, SDL_GLContext context);
 
 int main()
 {
-  // Create mesh object.
-  gal::Mesh mesh;
-
-  // Add positions to mesh.
-  gal::PositionBuffer position_buffer;
-  mesh.set(position_buffer);
-  std::vector<gal::Position> positions = 
+  // Mesh data of a cube.
+  gal::MeshData mesh_data;
+  mesh_data.vertices = 
   {
+    // {{position}, {normal}, {uv}}
+
     // front
-    {-1, -1, 1},
-    {1, -1, 1},
-    {-1, 1, 1},
-    {1, 1, 1},
+    {{-1, -1, 1}, {0, 0, 1}, {0, 0}},
+    {{1, -1, 1}, {0, 0, 1}, {1, 0}},
+    {{-1, 1, 1}, {0, 0, 1}, {0, 1}},
+    {{1, 1, 1}, {0, 0, 1}, {1, 1}},
 
     // right
-    {1, -1, 1},
-    {1, -1, -1},         
-    {1, 1, 1},
-    {1, 1, -1},
+    {{1, -1, 1}, {1, 0, 0}, {0, 0}},
+    {{1, -1, -1}, {1, 0, 0}, {1, 0}},    
+    {{1, 1, 1}, {1, 0, 0}, {0, 1}},
+    {{1, 1, -1}, {1, 0, 0}, {1, 1}},
 
     // back
-    {1, -1, -1},
-    {-1, -1, -1},            
-    {1, 1, -1},
-    {-1, 1, -1},
+    {{1, -1, -1}, {0, 0, -1}, {0, 0}},
+    {{-1, -1, -1}, {0, 0, -1}, {1, 0}},
+    {{1, 1, -1}, {0, 0, -1}, {0, 1}},
+    {{-1, 1, -1}, {0, 0, -1}, {1, 1}},
 
     // left
-    {-1, -1, -1},
-    {-1, -1, 1},         
-    {-1, 1, -1},
-    {-1, 1, 1},
+    {{-1, -1, -1}, {-1, 0, 0}, {0, 0}},
+    {{-1, -1, 1}, {-1, 0, 0}, {1, 0}},
+    {{-1, 1, -1}, {-1, 0, 0}, {0, 1}},
+    {{-1, 1, 1}, {-1, 0, 0}, {1, 1}},
 
     // bot
-    {-1, -1, -1},
-    {1, -1, -1},         
-    {-1, -1, 1},
-    {1, -1, 1},
+    {{-1, -1, -1}, {0, -1, 0}, {0, 0}},
+    {{1, -1, -1}, {0, -1, 0}, {1, 0}},
+    {{-1, -1, 1}, {0, -1, 0}, {0, 1}},
+    {{1, -1, 1}, {0, -1, 0}, {1, 1}},
 
     // top
-    {-1, 1, 1},
-    {1, 1, 1},           
-    {-1, 1, -1},
-    {1, 1, -1},
+    {{-1, 1, 1}, {0, 1, 0}, {0, 0}},
+    {{1, 1, 1}, {0, 1, 0}, {1, 0}}, 
+    {{-1, 1, -1}, {0, 1, 0}, {0, 1}},
+    {{1, 1, -1}, {0, 1, 0}, {1, 1}},
   };
-  position_buffer.set(positions.data(), positions.size());
 
-  // Add indices to mesh.
-  gal::IndexBuffer index_buffer;
-  mesh.set(index_buffer);
-  std::vector<gal::Index> indices = 
+  mesh_data.indices = 
   {
-		// front
-		0, 1, 2, 3, 3,
+    // front
+    0, 1, 2, 3, 3,
 
-		// right
-		4, 4, 5, 6, 7, 7,
+    // right
+    4, 4, 5, 6, 7, 7,
 
-		// back
-		8, 8, 9, 10, 11, 11,
+    // back
+    8, 8, 9, 10, 11, 11,
 
-		// left
-		12, 12, 13, 14, 15, 15,
+    // left
+    12, 12, 13, 14, 15, 15,
 
-		// bot
+    // bot
     16, 16, 17, 18, 19, 19,
 
-		// top
+    // top
     20, 20, 21, 22, 23, 23,
-	};
-  index_buffer.set(indices.data(), indices.size());
-
-  // Add UVs to mesh.
-  gal::UvBuffer uv_buffer;
-  mesh.set(uv_buffer);
-  std::vector<gal::Uv> uvs = 
-  { 
-    {0, 0}, {1, 0}, {0, 1}, {1, 1},
-    {0, 0}, {1, 0}, {0, 1}, {1, 1},
-    {0, 0}, {1, 0}, {0, 1}, {1, 1},
-    {0, 0}, {1, 0}, {0, 1}, {1, 1},
-    {0, 0}, {1, 0}, {0, 1}, {1, 1},
-    {0, 0}, {1, 0}, {0, 1}, {1, 1},
-    {0, 0}, {1, 0}, {0, 1}, {1, 1},
   };
-  uv_buffer.set(uvs.data(), uvs.size());
 
-  // Add normals to mesh.
-  gal::NormalBuffer normal_buffer;
-  mesh.set(normal_buffer);
-  std::vector<gal::Normal> normals = 
-  {
-    {0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1},
-    {1, 0, 0}, {1, 0, 0}, {1, 0, 0}, {1, 0, 0},
-    {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1},
-    {-1, 0, 0}, {-1, 0, 0}, {-1, 0, 0}, {-1, 0, 0},
-    {0, -1, 0}, {0, -1, 0}, {0, -1, 0}, {0, -1, 0},
-    {0, 1, 0}, {0, 1, 0}, {0, 1, 0}, {0, 1, 0},
-  };
-  normal_buffer.set(normals.data(), normals.size());
+  // Create mesh.
+  gal::Mesh mesh(mesh_data);
 
-  // Create draw object.
+  // Create draw.
   gal::Draw draw;
 
-  // Add mesh to draw object.
+  // Add mesh to draw.
   draw.set(mesh);
 
-  // Add texture to draw object.
-  gal::TextureBuffer texture_buffer;
-  draw.set(texture_buffer);
-
-  gal::Texture tex;
-  tex.format = gal::Texture::Format::RGBA;
-  tex.width = 1;
-  tex.height = 1;
-
+  // Blue texture data.
+  gal::TextureData texture_data;
+  texture_data.format = gal::TextureData::Format::RGBA;
+  texture_data.width = 1;
+  texture_data.height = 1;
   unsigned char blue[4] = {100, 100, 255, 255};
-  tex.data = (const char*)blue;
-  texture_buffer.set(&tex, 1);
+  texture_data.data = (const char*)blue;
 
+  // Create texture.
+  gal::Texture texture(texture_data);
 
-  gal::TransformBuffer transform_buffer;
-  draw.set(transform_buffer);
+  // Add texture to draw.
+  draw.set({&texture});
 
+  // Create transform matrices.
   glm::vec3 eye(0, 2, 5);
   glm::vec3 center(0, 0, 0);
   glm::vec3 up(0, 1, 0);
@@ -171,18 +136,18 @@ int main()
           }
       }
 
+      // Rotate cube.
       model_transform = glm::rotate(model_transform, 0.01f, glm::vec3(0, 1, 0));
-
       glm::mat4 transform = view_transform * model_transform;
-      transform_buffer.set(&transform[0][0], 1);
 
+      // Set transform.
+      draw.set({&transform[0][0]});
 
       // Draw the mesh.
       draw.draw();
 
       // Render results.
       gal::render();
-
 
       SDL_GL_SwapWindow(window);
   }
