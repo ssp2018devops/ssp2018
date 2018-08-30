@@ -20,6 +20,18 @@ namespace gal
   /// 
   struct Transform
   {
+    Transform(const float* matrix_4x4)
+    {
+      memcpy(data, matrix_4x4, sizeof(data));
+    }
+    
+    Transform& operator=(const float* matrix_4x4)
+    {
+      memcpy(data, matrix_4x4, sizeof(data));
+      return *this;
+    }
+
+
     float data[4][4];
   };
 
@@ -203,6 +215,7 @@ namespace gal
       TextureBuffer* _textures = nullptr;
       Mesh* _mesh = nullptr;
       Viewport _viewport;
+      bool _has_viewport = false;
       Type _type = Type::basic;
   };
 
@@ -316,6 +329,8 @@ namespace gal
       ///
       void set(const Transform* data, size_t count);
 
+      void set(const float* data_4x4, size_t count);
+
       ///
       /// Stream data to buffer.
       /// Opens an uninitialized stream to the data
@@ -327,9 +342,11 @@ namespace gal
       Transform* stream(size_t count);
 
     private:
-      void update();
+      friend class Draw;
+      void bind(const Viewport& viewport);
 
       std::vector<Transform> _transforms;
+      bool _is_dirty = false;
   };
 
   class TextureBuffer
@@ -480,7 +497,9 @@ namespace gal
       Normal* stream(size_t count);
 
     private:
+      friend class Mesh;
       void update();
+      void bind();
 
       std::vector<Normal> _normals;
       impl::Id _vbo = 0;

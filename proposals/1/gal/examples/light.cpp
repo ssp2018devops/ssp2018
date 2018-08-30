@@ -6,6 +6,8 @@
 
 #include <SDL.h>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 SDL_Window* openWindow();
 SDL_GLContext createGlContext(SDL_Window* window);
 void close(SDL_Window* window, SDL_GLContext context);
@@ -20,15 +22,41 @@ int main()
   mesh.set(position_buffer);
   std::vector<gal::Position> positions = 
   {
-    {-1.0, -1.0,  1.0},
-    {1.0, -1.0,  1.0},
-    {1.0,  1.0,  1.0},
-    {-1.0,  1.0,  1.0},
+    // front
+    {-1, -1, 1},
+    {1, -1, 1},
+    {-1, 1, 1},
+    {1, 1, 1},
 
-    {-1.0, -1.0, -1.0},
-    {1.0, -1.0, -1.0},
-    {1.0,  1.0, -1.0},
-    {-1.0,  1.0, -1.0},
+    // right
+    {1, -1, 1},
+    {1, -1, -1},         
+    {1, 1, 1},
+    {1, 1, -1},
+
+    // back
+    {1, -1, -1},
+    {-1, -1, -1},            
+    {1, 1, -1},
+    {-1, 1, -1},
+
+    // left
+    {-1, -1, -1},
+    {-1, -1, 1},         
+    {-1, 1, -1},
+    {-1, 1, 1},
+
+    // bot
+    {-1, -1, -1},
+    {1, -1, -1},         
+    {-1, -1, 1},
+    {1, -1, 1},
+
+    // top
+    {-1, 1, 1},
+    {1, 1, 1},           
+    {-1, 1, -1},
+    {1, 1, -1},
   };
   position_buffer.set(positions.data(), positions.size());
 
@@ -38,23 +66,22 @@ int main()
   std::vector<gal::Index> indices = 
   {
 		// front
-		0, 1, 2,
-		2, 3, 0,
+		0, 1, 2, 3, 3,
+
 		// right
-		1, 5, 6,
-		6, 2, 1,
+		4, 4, 5, 6, 7, 7,
+
 		// back
-		7, 6, 5,
-		5, 4, 7,
+		8, 8, 9, 10, 11, 11,
+
 		// left
-		4, 0, 3,
-		3, 7, 4,
-		// bottom
-		4, 5, 1,
-		1, 0, 4,
+		12, 12, 13, 14, 15, 15,
+
+		// bot
+    16, 16, 17, 18, 19, 19,
+
 		// top
-		3, 2, 6,
-		6, 7, 3,
+    20, 20, 21, 22, 23, 23,
 	};
   index_buffer.set(indices.data(), indices.size());
 
@@ -63,16 +90,29 @@ int main()
   mesh.set(uv_buffer);
   std::vector<gal::Uv> uvs = 
   { 
-    {0.f, 0.f},
-    {1.f, 0.f},
-    {0.f, 1.f},
-    {1.f, 1.f},
-    {1.f, 1.f},
-    {1.f, 1.f},
-    {1.f, 1.f},
-    {1.f, 1.f},
+    {0, 0}, {1, 0}, {0, 1}, {1, 1},
+    {0, 0}, {1, 0}, {0, 1}, {1, 1},
+    {0, 0}, {1, 0}, {0, 1}, {1, 1},
+    {0, 0}, {1, 0}, {0, 1}, {1, 1},
+    {0, 0}, {1, 0}, {0, 1}, {1, 1},
+    {0, 0}, {1, 0}, {0, 1}, {1, 1},
+    {0, 0}, {1, 0}, {0, 1}, {1, 1},
   };
   uv_buffer.set(uvs.data(), uvs.size());
+
+  // Add normals to mesh.
+  gal::NormalBuffer normal_buffer;
+  mesh.set(normal_buffer);
+  std::vector<gal::Normal> normals = 
+  {
+    {0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1},
+    {1, 0, 0}, {1, 0, 0}, {1, 0, 0}, {1, 0, 0},
+    {0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1},
+    {-1, 0, 0}, {-1, 0, 0}, {-1, 0, 0}, {-1, 0, 0},
+    {0, -1, 0}, {0, -1, 0}, {0, -1, 0}, {0, -1, 0},
+    {0, 1, 0}, {0, 1, 0}, {0, 1, 0}, {0, 1, 0},
+  };
+  normal_buffer.set(normals.data(), normals.size());
 
   // Create draw object.
   gal::Draw draw;
@@ -89,9 +129,19 @@ int main()
   tex.width = 1;
   tex.height = 1;
 
-  unsigned char blue[4] = {0, 0, 255, 255};
+  unsigned char blue[4] = {100, 100, 255, 255};
   tex.data = (const char*)blue;
   texture_buffer.set(&tex, 1);
+
+
+  gal::TransformBuffer transform_buffer;
+  draw.set(transform_buffer);
+
+  glm::vec3 eye(0, 2, 5);
+  glm::vec3 center(0, 0, 0);
+  glm::vec3 up(0, 1, 0);
+  glm::mat4 view_transform = glm::lookAt(eye, center, up);
+  glm::mat4 model_transform(1.f);
 
 
   SDL_Window* window = openWindow();
@@ -120,6 +170,12 @@ int main()
                   break;
           }
       }
+
+      model_transform = glm::rotate(model_transform, 0.01f, glm::vec3(0, 1, 0));
+
+      glm::mat4 transform = view_transform * model_transform;
+      transform_buffer.set(&transform[0][0], 1);
+
 
       // Draw the mesh.
       draw.draw();
@@ -154,6 +210,9 @@ SDL_Window* openWindow()
 
   int width = 400;
   int height = 400;
+
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
   SDL_Window* window = SDL_CreateWindow
   (
     "An SDL2 window",                  // window title
@@ -185,7 +244,7 @@ SDL_GLContext createGlContext(SDL_Window* window)
     throw std::runtime_error(SDL_GetError());
   }
 
-  if(SDL_GL_SetSwapInterval(0) != 0)
+  if(SDL_GL_SetSwapInterval(1) != 0)
   {
     throw std::runtime_error("Failed to set SDL swap interval.");
   }

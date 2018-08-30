@@ -9,6 +9,7 @@
 
 #include <GL/glew.h>
 
+#include <glm/gtc/matrix_transform.hpp>
 
 
 namespace gal
@@ -67,11 +68,17 @@ GLuint createShaderProgram()
     #version 130
     in vec3 vertexPosition_modelspace;
     in vec2 uvIn;
+    in vec3 normalIn;
     out vec2 uv;
+    out vec3 normal;
+    uniform mat4 mv;
+    uniform mat4 mvp;
     void main()
     {
-      gl_Position.xyz = vertexPosition_modelspace;
-      gl_Position.w = 1.0;
+      gl_Position = mvp * vec4(vertexPosition_modelspace, 1);
+      gl_Position /= gl_Position.w;
+
+      normal = (mv * vec4(normalIn, 0)).xyz;
       uv = uvIn;
     }
 
@@ -82,12 +89,19 @@ GLuint createShaderProgram()
     #version 130
     out vec3 color;
     in vec2 uv;
+    in vec3 normal;
 
     uniform sampler2D textureSampler;
 
     void main()
     {
+      const vec3 light_direction = normalize(vec3(1, -1, -1));
       color = texture(textureSampler, uv).rgb;
+
+      float diffuse = clamp(-dot(light_direction, normal), 0, 1);
+      const float ambient = 0.2; 
+      float modifier = clamp(ambient + diffuse, 0, 1);
+      color *= modifier;
     }
 
   )EOF";
@@ -224,6 +238,12 @@ void Mesh::set(const IndexBuffer& buffer)
   _is_dirty = true;
 }
 
+void Mesh::set(const NormalBuffer& buffer)
+{
+  _normals = (NormalBuffer*)&buffer;
+  _is_dirty = true;
+}
+
 
 Draw::Draw()
 : _viewport(impl::_default_viewport)
@@ -250,6 +270,7 @@ void Draw::set(const TextureBuffer& buffer)
 void Draw::set(const Viewport& viewport)
 {
   _viewport = viewport;
+  _has_viewport = true;
 }
 
 
@@ -279,9 +300,19 @@ void TransparencyBuffer::set(const Transparency* data, size_t count)
   _transparencies.assign(data, data + count);
 }
 
+void TransformBuffer::set(const float* data_4x4, size_t count)
+{
+  set((const Transform*)data_4x4, count);
+}
+
 void TransformBuffer::set(const Transform* data, size_t count)
 {
   _transforms.assign(data, data + count);
+  
+  if(count > 0)
+  {
+    _is_dirty = true;
+  }
 }
 
 void TextureBuffer::set(const Texture* data, size_t count)
@@ -376,6 +407,26 @@ IndexBuffer::~IndexBuffer()
   
 }
 
+NormalBuffer::NormalBuffer()
+{
+
+}
+
+NormalBuffer::~NormalBuffer()
+{
+  
+}
+
+TransformBuffer::TransformBuffer()
+{
+
+}
+
+TransformBuffer::~TransformBuffer()
+{
+  
+}
+
 void IndexBuffer::update()
 {
   if(_vbo == 0)
@@ -403,13 +454,29 @@ void IndexBuffer::render()
 
 void Draw::update()
 {
-  _mesh->update();
-  _textures->update();
+  if(!_has_viewport)
+  {
+    _viewport = impl::_default_viewport;
+    _has_viewport = true;
+  }
+
+  if(_mesh)
+  {
+    _mesh->update();
+  }
+
+  if(_textures)
+  {
+    _textures->update();
+  }
 }
 
 void Draw::render()
 {
   _textures->bind();
+
+  _transforms->bind(_viewport);
+
   _mesh->render();  
 }
 
@@ -422,6 +489,7 @@ void Mesh::update()
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
   }
 
   if(_is_dirty)
@@ -430,6 +498,11 @@ void Mesh::update()
     
     _positions->update();
     _uvs->update();
+
+    if(_normals)
+    {
+      _normals->update();
+    }
 
     if(_indices)
     {
@@ -443,6 +516,12 @@ void Mesh::update()
 
     _uvs->bind();
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Uv), 0);
+
+    if(_normals)
+    {
+      _normals->bind();
+      glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Normal), 0);
+    }
   }
 }
 
@@ -480,9 +559,30 @@ void TextureBuffer::bind()
   glBindTexture(GL_TEXTURE_2D, _tex);
 }
 
-void TransformBuffer::update()
+void TransformBuffer::bind(const Viewport& viewport)
 {
-  
+  glm::mat4 proj = glm::perspective(glm::radians(45.0f), 
+                                    1.0f * float(viewport.width) / float(viewport.height), 
+                                    0.1f, 
+                                    10.0f);
+
+
+  glm::mat4 mvp = proj;
+  glm::mat4 mv(1.f);
+  if (!_transforms.empty())
+  {
+    Transform& transform = _transforms.front();
+    memcpy(&mv[0][0], &transform.data[0][0], sizeof(transform.data)); 
+    mvp *= mv;
+  }
+
+  GLint program;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+  GLint uniform_mvp = glGetUniformLocation(program, "mvp");
+  GLint uniform_mv = glGetUniformLocation(program, "mv");
+
+  glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, &mvp[0][0]);
+  glUniformMatrix4fv(uniform_mv, 1, GL_FALSE, &mv[0][0]);
 }
 
 void TextureBuffer::update()
@@ -529,7 +629,24 @@ void PositionBuffer::update()
 
 void NormalBuffer::update()
 {
-  
+  if(_vbo == 0)
+  {
+    glGenBuffers(1, &_vbo);
+  }
+
+
+  if(!_normals.empty())
+  {
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Normal) * _normals.size(), _normals.data(), GL_STATIC_DRAW);
+
+    _normals.clear();
+  }
+}
+
+void NormalBuffer::bind()
+{
+  glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 }
 
 void UvBuffer::update()
@@ -564,7 +681,7 @@ void initialize()
   }
   std::cout << "[gal] initialized OpenGL with " << glGetString(GL_VERSION) << ", " << glGetString(GL_RENDERER) << std::endl;
 
-  glDisable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);
   glClearColor(1.f, 0.f, 1.f, 1.f);
 
   GLint viewport[4];
@@ -576,6 +693,8 @@ void initialize()
   impl::_default_viewport.height = viewport[3];
 
   impl::_shader = createShaderProgram();
+
+  glDisable(GL_CULL_FACE);
 }
 
 void render()
