@@ -16,6 +16,7 @@ void close(SDL_Window* window, SDL_GLContext context);
 int main()
 { 
   
+  
   // Mesh data of a cube.
   gal::MeshData mesh_data;
   mesh_data.vertices = 
