@@ -109,6 +109,7 @@ int main()
   glm::mat4 model_transform(1.f);
 
 
+
   SDL_Window* window = openWindow();
   SDL_GLContext context = createGlContext(window);
   bool isRunning = true;
