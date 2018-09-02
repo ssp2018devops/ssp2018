@@ -104,6 +104,12 @@ int main()
   glm::mat4 view_transform = glm::lookAt(eye, center, up);
   glm::mat4 model_transform(1.f);
 
+  // Create light
+  gal::Light light;
+  light.set(gal::Light::Type::directional);
+  glm::mat4 light_transform = glm::lookAt(glm::vec3(-1, 1, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+  light.set(&light_transform[0][0]);
+
 
   SDL_Window* window = openWindow();
   SDL_GLContext context = createGlContext(window);
@@ -141,6 +147,9 @@ int main()
 
       // Draw the mesh.
       draw.draw();
+
+      // Draw the light.
+      light.draw();
 
       // Render results.
       gal::render();

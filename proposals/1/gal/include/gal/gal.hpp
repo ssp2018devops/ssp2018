@@ -18,6 +18,15 @@ namespace gal
   /// 
   struct Transform
   {
+    Transform()
+    {
+      memset(data, 0, sizeof(data));
+      data[0][0] = 1;
+      data[1][1] = 1;
+      data[2][2] = 1;
+      data[3][3] = 1;
+    }
+
     Transform(const float* matrix_4x4)
     {
       memcpy(data, matrix_4x4, sizeof(data));
@@ -221,6 +230,28 @@ namespace gal
       std::vector<Transform> _transforms;
       Viewport _viewport;
       bool _has_viewport = false;
-      
+  };
+
+  class Light
+  {
+    public:
+      enum class Type : unsigned char
+      {
+        point,
+        directional,
+      };
+
+      void set(Type type);
+      void set(const Transform& transform);
+
+      void draw() const;
+
+
+    private:
+      friend class impl::Renderer;
+      void render();
+
+      Type _type = Type::point;
+      Transform _transform;
   };
 }

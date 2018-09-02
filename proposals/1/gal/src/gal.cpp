@@ -92,10 +92,10 @@ GLuint createShaderProgram()
     in vec3 normal;
 
     uniform sampler2D textureSampler;
+    uniform vec3 light_direction;
 
     void main()
     {
-      const vec3 light_direction = normalize(vec3(1, -1, -1));
       color = texture(textureSampler, uv.xy).rgb;
 
       float diffuse = clamp(-dot(light_direction, normal), 0, 1);
@@ -179,6 +179,7 @@ namespace impl
   {
     public:
       static void render(std::vector<Draw>& draws);
+      static void render(std::vector<Light>& lights);
   };
 
   void Renderer::render(std::vector<Draw>& draws)
@@ -190,22 +191,40 @@ namespace impl
     }
   }
 
+  void Renderer::render(std::vector<Light>& lights)
+  {
+    for(Light& light : lights)
+    {
+      light.render();
+    }
+  }
+
   class Buffer
   {
     public:
       Buffer();
 
-      std::vector<Draw>& get_front();
-      std::vector<Draw>& get_back();
+      void push(const Light& light);
+      void push(const Draw& draw);
+
+
+
+      std::vector<Light>& get_lights();
+      std::vector<Draw>& get_draws();
       void swap();
 
 
     private:
-      std::vector<Draw> _buffer_1;
-      std::vector<Draw> _buffer_2;
+      struct Data
+      {
+        std::vector<Light> lights;
+        std::vector<Draw> draws;
+      };
+      Data _buffer_1;
+      Data _buffer_2;
 
-      std::vector<Draw>* _front_buffer;
-      std::vector<Draw>* _back_buffer;
+      Data* _front_buffer;
+      Data* _back_buffer;
   };
 
 
@@ -217,19 +236,32 @@ namespace impl
 
   }
 
-  std::vector<Draw>& Buffer::get_front()
+  void Buffer::push(const Light& light)
   {
-    return *_front_buffer;
+    _back_buffer->lights.push_back(light);
   }
 
-  std::vector<Draw>& Buffer::get_back()
+  void Buffer::push(const Draw& draw)
   {
-    return *_back_buffer;
+    _back_buffer->draws.push_back(draw);
   }
+
+  std::vector<Light>& Buffer::get_lights()
+  {
+    return _front_buffer->lights;
+  }
+
+  std::vector<Draw>& Buffer::get_draws()
+  {
+    return _front_buffer->draws;
+  }
+
+
 
   void Buffer::swap()
   {
-    _front_buffer->clear();
+    _front_buffer->lights.clear();
+    _front_buffer->draws.clear();
     std::swap(_front_buffer, _back_buffer);
   }
 
@@ -294,6 +326,13 @@ void Draw::initialize()
   }
 }
 
+glm::mat4 to_glm(const Transform& transform)
+{
+  glm::mat4 mat;
+  memcpy(&mat[0][0], &transform.data[0][0], sizeof(transform.data)); 
+  return mat;
+} 
+
 void Draw::render()
 {
   for(impl::Texture* texture : _textures)
@@ -309,8 +348,7 @@ void Draw::render()
                                         10.0f);
 
 
-    glm::mat4 mv;
-    memcpy(&mv[0][0], &transform.data[0][0], sizeof(transform.data)); 
+    glm::mat4 mv = to_glm(transform);
     glm::mat4 mvp = proj * mv;
 
     GLint program;
@@ -324,6 +362,36 @@ void Draw::render()
     _mesh->render();  
   }
 }
+
+void Light::set(Type type)
+{
+  _type = type;
+}
+
+void Light::set(const Transform& transform)
+{
+  _transform = transform;
+}
+
+void Light::draw() const
+{
+  impl::_draw_buffer.push(*this);
+}
+
+void Light::render()
+{
+  GLint program;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+  GLint uniform_light = glGetUniformLocation(program, "light_direction");
+
+  glm::vec4 direction4 =  to_glm(_transform) * glm::vec4(0, 0, -1, 0);
+
+  glm::vec3 direction = glm::vec3(direction4);
+  direction = glm::normalize(direction);
+
+  glUniform3fv(uniform_light, 1, &direction[0]);
+}
+
 
 impl::Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<Index>& indices)
 : _vertices(vertices)
@@ -417,7 +485,8 @@ void render()
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  impl::Renderer::render(impl::_draw_buffer.get_front());
+  impl::Renderer::render(impl::_draw_buffer.get_draws());
+  impl::Renderer::render(impl::_draw_buffer.get_lights());
 }
 
 
@@ -472,7 +541,7 @@ void Draw::set(const Viewport& viewport)
 
 void Draw::draw() const
 {
-  impl::_draw_buffer.get_back().push_back(*this);
+  impl::_draw_buffer.push(*this);
 }
 
 
