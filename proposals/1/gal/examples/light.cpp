@@ -78,7 +78,7 @@ int main()
     // top
     20, 20, 21, 22, 23, 23,
   };
-
+  
   // Create mesh.
   gal::Mesh mesh(vertices, indices);
 
@@ -103,7 +103,6 @@ int main()
   glm::vec3 up(0, 1, 0);
   glm::mat4 view_transform = glm::lookAt(eye, center, up);
   glm::mat4 model_transform(1.f);
-
 
 
   SDL_Window* window = openWindow();
