@@ -141,30 +141,33 @@ namespace impl
   class Mesh
   {
     public:
-      Mesh(const MeshData& data) : _data(data){}
+      Mesh(const std::vector<Vertex>& vertices, const std::vector<Index>& indices);
+
 
       void initialize();
       void render();
 
     private:
-      MeshData _data;
+      std::vector<Vertex> _vertices;
+      std::vector<Index> _indices;
       Id _vao = 0;
       Id _vbo = 0;
-      Id _indices = 0;
+      Id _indices_vbo = 0;
       size_t _size;
   };
 
   class Texture
   {
     public:
-      Texture(const TextureData& data);
+      Texture(const char* data, size_t size, size_t width, size_t height, ::gal::Texture::Format format);
 
       void initialize();
       void bind();
 
     private:
-      TextureData _header;
       std::vector<char> _data;
+      size_t _width;
+      size_t _height;
       Id _tex = 0;
   };
 
@@ -243,11 +246,12 @@ namespace impl
 }
 
 
-impl::Texture::Texture(const TextureData& data)
-: _header(data)
+impl::Texture::Texture(const char* data, size_t size, size_t width, size_t height, ::gal::Texture::Format format)
+: _width(width)
+, _height(height)
 {
-  assert(_header.format == TextureData::Format::RGBA);
-  _data.assign(_header.data, _header.data + _header.width * _header.height * 4);
+  assert(format == ::gal::Texture::Format::RGBA);
+  _data.assign(data, data + size);
 }
 
 void impl::Texture::initialize()
@@ -268,8 +272,7 @@ void impl::Texture::initialize()
 
   glBindTexture(GL_TEXTURE_2D, _tex);
 
-  assert(_header.format == TextureData::Format::RGBA);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _header.width, _header.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, _data.data());
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, _data.data());
 
   _data.clear();
 }
@@ -322,6 +325,13 @@ void Draw::render()
   }
 }
 
+impl::Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<Index>& indices)
+: _vertices(vertices)
+, _indices(indices)
+{
+
+}
+
 void impl::Mesh::initialize()
 {
   if(_vao != 0)
@@ -342,15 +352,16 @@ void impl::Mesh::initialize()
   glVertexAttribPointer(1, sizeof(Normal) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(Vertex), (char*)sizeof(Position));
   glVertexAttribPointer(2, sizeof(Uv) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(Vertex), (char*)sizeof(Position) + sizeof(Normal));
   
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * _data.vertices.size(), _data.vertices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * _vertices.size(), _vertices.data(), GL_STATIC_DRAW);
 
 
-  glGenBuffers(1, &_indices);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indices);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Index) * _data.indices.size(), _data.indices.data(), GL_STATIC_DRAW);
+  glGenBuffers(1, &_indices_vbo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indices_vbo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Index) * _indices.size(), _indices.data(), GL_STATIC_DRAW);
   
-  _size = _data.indices.size();
-  _data = MeshData();
+  _size = _indices.size();
+  _vertices.clear();
+  _indices.clear();
 }
 
 void impl::Mesh::render()
@@ -410,8 +421,8 @@ void render()
 }
 
 
-Mesh::Mesh(const MeshData& data)
-: _mesh(new impl::Mesh(data))
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<Index>& indices)
+: _mesh(new impl::Mesh(vertices, indices))
 {
 
 }
@@ -422,8 +433,8 @@ Mesh::~Mesh()
   delete _mesh;
 }
 
-Texture::Texture(const TextureData& data)
-: _texture(new impl::Texture(data))
+Texture::Texture(const char* data, size_t size, size_t width, size_t height, Format format)
+: _texture(new impl::Texture(data, size, width, height, format))
 {
 
 }
