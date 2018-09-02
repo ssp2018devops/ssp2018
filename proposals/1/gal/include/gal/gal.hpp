@@ -84,42 +84,11 @@ namespace gal
     size_t height;
   };
 
-  ///
-  /// Texture data.
-  ///
-  struct TextureData
-  {
-    enum class Format : unsigned char
-    {
-      RGB,
-      RGBA,
-      // ...
-    };
-
-    const char* data;
-    size_t width;
-    size_t height;
-    Format format;
-  };
 
   ///
   /// Index
   ///
   using Index = unsigned short;
-
-  ///
-  /// Example mesh data structure
-  /// Holds data in an optimized way
-  /// to reduce loading times. This
-  /// struct may change depending
-  /// on how we want our meshes to
-  /// be stored.
-  ///
-  struct MeshData
-  {
-     std::vector<Vertex> vertices;
-     std::vector<Index> indices;
-  };
 
   ///
   /// Render draw calls to screen.
@@ -141,8 +110,10 @@ namespace gal
     public:
       ///
       /// Create mesh from data.
+      /// \param vertices Mesh vertices.
+      /// \param indices Vertex indices for drawing.
       ///
-      Mesh(const MeshData& data);
+      Mesh(const std::vector<Vertex>& vertices, const std::vector<Index>& indices);
 
       ///
       /// Destroy mesh.
@@ -166,9 +137,24 @@ namespace gal
   {
     public:
       ///
-      /// Create texture from data.
+      /// Data storage specification
       ///
-      Texture(const TextureData& data);
+      enum class Format : unsigned char
+      {
+        RGB,
+        RGBA,
+        // ...
+      };
+
+      ///
+      /// Create texture from data.
+      /// \param data Texture data.
+      /// \param size Size in bytes.
+      /// \param width Width in pixels.
+      /// \param height Height in pixels.
+      /// \param format Texture format of data.
+      ///
+      Texture(const char* data, size_t size, size_t width, size_t height, Format format);
       
       ///
       /// Destroy texture.

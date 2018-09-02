@@ -6,6 +6,7 @@
 
 #include <SDL.h>
 
+
 #include <glm/gtc/matrix_transform.hpp>
 
 SDL_Window* openWindow();
@@ -14,9 +15,8 @@ void close(SDL_Window* window, SDL_GLContext context);
 
 int main()
 {
-  // Mesh data of a cube.
-  gal::MeshData mesh_data;
-  mesh_data.vertices = 
+  // Cube vertices.
+  std::vector<gal::Vertex> vertices = 
   {
     // {{position}, {normal}, {uv}}
 
@@ -56,8 +56,9 @@ int main()
     {{-1, 1, -1}, {0, 1, 0}, {0, 1}},
     {{1, 1, -1}, {0, 1, 0}, {1, 1}},
   };
-  
-  mesh_data.indices = 
+
+  // Cube vertex indices.
+  std::vector<gal::Index> indices = 
   {
     // front
     0, 1, 2, 3, 3,
@@ -79,7 +80,7 @@ int main()
   };
   
   // Create mesh.
-  gal::Mesh mesh(mesh_data);
+  gal::Mesh mesh(vertices, indices);
 
   // Create draw.
   gal::Draw draw;
@@ -88,15 +89,10 @@ int main()
   draw.set(mesh);
 
   // Blue texture data.
-  gal::TextureData texture_data;
-  texture_data.format = gal::TextureData::Format::RGBA;
-  texture_data.width = 1;
-  texture_data.height = 1;
   unsigned char blue[4] = {100, 100, 255, 255};
-  texture_data.data = (const char*)blue;
 
   // Create texture.
-  gal::Texture texture(texture_data);
+  gal::Texture texture((const char*)blue, sizeof(blue), 1, 1, gal::Texture::Format::RGBA);
 
   // Add texture to draw.
   draw.set({&texture});
